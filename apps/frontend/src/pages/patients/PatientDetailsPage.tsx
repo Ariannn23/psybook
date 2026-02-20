@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { getPatient } from "@/api/patients";
 import type { Patient } from "@/types/patients";
 import {
@@ -11,6 +11,7 @@ import {
   Clock,
   FileText,
   ArrowLeft,
+  Pencil,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import MedicalRecordTimeline from "@/components/patients/MedicalRecordTimeline";
@@ -21,7 +22,7 @@ function formatDateWithoutTimezone(dateString: string): string {
   const year = dateObj.getUTCFullYear();
   const month = String(dateObj.getUTCMonth() + 1).padStart(2, "0");
   const day = String(dateObj.getUTCDate()).padStart(2, "0");
-  
+
   return new Intl.DateTimeFormat("es-ES", {
     year: "numeric",
     month: "2-digit",
@@ -65,157 +66,269 @@ export default function PatientDetailsPage() {
   if (!patient) return null;
 
   return (
-    <div className="p-6 space-y-6 max-w-5xl mx-auto">
-      <button
-        onClick={() => navigate("/dashboard/patients")}
-        className="flex items-center gap-2 text-slate-500 hover:text-slate-800 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Volver a Pacientes
-      </button>
+    <div className="p-6 space-y-8 animate-fade-in max-w-6xl mx-auto">
+      <div className="flex items-center justify-between">
+        <button
+          onClick={() => navigate("/dashboard/patients")}
+          className="group flex items-center gap-2 text-slate-400 hover:text-emerald-600 transition-all font-bold text-sm uppercase tracking-widest"
+        >
+          <div className="p-2 rounded-xl group-hover:bg-emerald-50 transition-colors">
+            <ArrowLeft className="w-4 h-4" />
+          </div>
+          Volver a Pacientes
+        </button>
 
-      {/* Header */}
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex flex-col md:flex-row items-center gap-6">
-        <div className="h-24 w-24 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 text-3xl font-bold">
-          {patient.name.charAt(0)}
+        <div className="flex gap-3">
+          <Link
+            to={`/dashboard/patients/edit/${patient.id}`}
+            className="p-3 bg-white border border-slate-200 rounded-2xl text-slate-400 hover:text-emerald-600 hover:border-emerald-100 hover:shadow-lg transition-all shadow-sm flex items-center justify-center cursor-pointer"
+            title="Editar Paciente"
+          >
+            <Pencil className="w-4 h-4" />
+          </Link>
         </div>
-        <div className="flex-1 text-center md:text-left space-y-1">
-          <h1 className="text-2xl font-bold text-slate-800">{patient.name}</h1>
-          <div className="flex flex-wrap justify-center md:justify-start gap-4 text-slate-500 text-sm">
-            <div className="flex items-center gap-1">
-              <Mail className="w-4 h-4" />
-              {patient.email}
+      </div>
+
+      {/* Premium Header */}
+      <div className="bg-white rounded-4xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden relative">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-50 rounded-full blur-3xl -mr-32 -mt-32 opacity-50"></div>
+
+        <div className="relative p-8 flex flex-col md:flex-row items-center gap-8">
+          {/* Dynamic Avatar */}
+          <div
+            className={cn(
+              "h-32 w-32 rounded-4xl flex items-center justify-center text-4xl font-black shadow-lg shadow-emerald-100 border-4 border-white animate-slide-in",
+              "bg-emerald-100 text-emerald-700",
+            )}
+          >
+            {patient.name
+              .split(" ")
+              .map((n) => n[0])
+              .join("")
+              .toUpperCase()
+              .substring(0, 2)}
+          </div>
+
+          <div className="flex-1 text-center md:text-left space-y-3">
+            <div className="space-y-1">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-widest border border-emerald-100">
+                Expediente Activo
+              </div>
+              <h1 className="text-4xl font-black text-slate-900 tracking-tight leading-tight">
+                {patient.name}
+              </h1>
             </div>
-            <div className="flex items-center gap-1">
-              <Phone className="w-4 h-4" />
-              {patient.phone}
+
+            <div className="flex flex-wrap justify-center md:justify-start gap-6 pt-2">
+              <div className="flex items-center gap-2.5 text-slate-500 font-bold text-sm">
+                <div className="p-2 bg-slate-50 rounded-xl border border-slate-100">
+                  <Mail className="w-4 h-4 text-emerald-500" />
+                </div>
+                {patient.email}
+              </div>
+              <div className="flex items-center gap-2.5 text-slate-500 font-bold text-sm">
+                <div className="p-2 bg-slate-50 rounded-xl border border-slate-100">
+                  <Phone className="w-4 h-4 text-emerald-500" />
+                </div>
+                {patient.phone}
+              </div>
+              <div className="flex items-center gap-2.5 text-slate-500 font-bold text-sm">
+                <div className="p-2 bg-slate-50 rounded-xl border border-slate-100">
+                  <FileText className="w-4 h-4 text-emerald-500" />
+                </div>
+                DNI: {patient.dni}
+              </div>
+            </div>
+          </div>
+
+          <div className="hidden lg:flex flex-col items-end gap-2 pr-4">
+            <div className="text-right">
+              <p className="text-[10px] uppercase font-black text-slate-400 tracking-widest">
+                Desde
+              </p>
+              <p className="text-slate-900 font-bold">
+                {new Date(patient.createdAt).toLocaleDateString("es-ES", {
+                  month: "long",
+                  year: "numeric",
+                })}
+              </p>
             </div>
           </div>
         </div>
+
+        {/* Custom Tabs */}
+        <div className="px-8 bg-slate-50/50 border-t border-slate-50">
+          <nav className="flex gap-8">
+            <TabButton
+              active={activeTab === "general"}
+              onClick={() => setActiveTab("general")}
+              label="General"
+              icon={User}
+            />
+            <TabButton
+              active={activeTab === "history"}
+              onClick={() => setActiveTab("history")}
+              label="Evolución Clínica"
+              icon={FileText}
+            />
+            <TabButton
+              active={activeTab === "appointments"}
+              onClick={() => setActiveTab("appointments")}
+              label="Citas & Horarios"
+              icon={Calendar}
+            />
+          </nav>
+        </div>
       </div>
 
-      {/* Tabs */}
-      <div className="border-b border-slate-200">
-        <nav className="flex gap-4">
-          <TabButton
-            active={activeTab === "general"}
-            onClick={() => setActiveTab("general")}
-            label="Información General"
-            icon={User}
-          />
-          <TabButton
-            active={activeTab === "history"}
-            onClick={() => setActiveTab("history")}
-            label="Historia Clínica"
-            icon={FileText}
-          />
-          <TabButton
-            active={activeTab === "appointments"}
-            onClick={() => setActiveTab("appointments")}
-            label="Citas"
-            icon={Calendar}
-          />
-        </nav>
-      </div>
-
-      {/* Content */}
-      <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 min-h-[300px]">
+      {/* Main Content Area */}
+      <div className="animate-slide-up">
         {activeTab === "general" && (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-slate-800">
-              Información del Paciente
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <InfoItem
-                label="Registrado"
-                value={new Date(patient.createdAt).toLocaleDateString("es-ES")}
-              />
-              <InfoItem
-                label="Última Actualización"
-                value={new Date(patient.updatedAt).toLocaleDateString("es-ES")}
-              />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="md:col-span-2 space-y-6">
+              <div className="bg-white p-8 rounded-4xl shadow-xl shadow-slate-200/40 border border-slate-100">
+                <h3 className="text-xl font-black text-slate-900 mb-6 flex items-center gap-3">
+                  <div className="w-1.5 h-6 bg-emerald-500 rounded-full"></div>
+                  Información de Registro
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                  <InfoItem
+                    label="Fecha de Creación"
+                    value={new Date(patient.createdAt).toLocaleDateString(
+                      "es-ES",
+                      { day: "2-digit", month: "long", year: "numeric" },
+                    )}
+                  />
+                  <InfoItem label="DNI / Documento" value={patient.dni} />
+                  <InfoItem
+                    label="Última modificación"
+                    value={new Date(patient.updatedAt).toLocaleDateString(
+                      "es-ES",
+                      { day: "2-digit", month: "long", year: "numeric" },
+                    )}
+                  />
+                </div>
+              </div>
+
+              <div className="bg-white p-8 rounded-4xl shadow-xl shadow-slate-200/40 border border-slate-100">
+                <h3 className="text-xl font-black text-slate-900 mb-6 flex items-center gap-3">
+                  <div className="w-1.5 h-6 bg-emerald-500 rounded-full"></div>
+                  Notas Adicionales
+                </h3>
+                <p className="text-slate-600 leading-relaxed font-medium">
+                  {patient.notes ||
+                    "No hay notas adicionales cargadas para este paciente."}
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <div className="bg-emerald-900 p-8 rounded-4xl text-white shadow-xl shadow-emerald-200 overflow-hidden relative group">
+                <div className="absolute -top-10 -right-10 w-40 h-40 bg-emerald-500/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
+                <h4 className="text-emerald-400 text-[10px] font-black uppercase tracking-[0.2em] mb-4">
+                  Próxima Sesión
+                </h4>
+                <p className="text-2xl font-black mb-2">Lunes, 24 Feb</p>
+                <div className="flex items-center gap-2 text-emerald-100/60 font-bold text-sm">
+                  <Clock className="w-4 h-4" />
+                  16:30 - 17:30
+                </div>
+                <button className="mt-8 w-full bg-emerald-500 hover:bg-emerald-400 text-emerald-950 font-black py-4 rounded-2xl transition-all active:scale-95 text-xs uppercase tracking-widest">
+                  Ver Detalles
+                </button>
+              </div>
             </div>
           </div>
         )}
-        {activeTab === "history" && (
-          <div className="space-y-6">
-            <div className="bg-slate-50 p-4 rounded-lg border border-slate-200 mb-6">
-              <h4 className="text-sm font-semibold text-slate-700 mb-2">
-                Antecedentes (Estático)
-              </h4>
-              {patient.notes ? (
-                <p className="text-slate-600 text-sm whitespace-pre-wrap">
-                  {patient.notes}
-                </p>
-              ) : (
-                <p className="text-slate-400 text-sm italic">
-                  Sin antecedentes registrados.
-                </p>
-              )}
-            </div>
 
+        {activeTab === "history" && (
+          <div className="space-y-8">
             <MedicalRecordTimeline patientId={id!} />
           </div>
         )}
+
         {activeTab === "appointments" && (
-          <div>
+          <div className="bg-white p-8 rounded-4xl shadow-xl shadow-slate-200/40 border border-slate-100">
+            <div className="flex justify-between items-center mb-10">
+              <h3 className="text-2xl font-black text-slate-900 flex items-center gap-3">
+                <div className="w-1.5 h-8 bg-emerald-500 rounded-full"></div>
+                Citas Agendadas
+              </h3>
+              <button
+                onClick={() => navigate("/dashboard/appointments/new")}
+                className="text-emerald-600 font-black text-xs uppercase tracking-widest hover:text-emerald-700 transition-colors bg-emerald-50 px-4 py-2 rounded-xl"
+              >
+                + Nueva Cita
+              </button>
+            </div>
+
             {patient.appointments && patient.appointments.length > 0 ? (
-              <div className="divide-y divide-slate-200">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {patient.appointments.map((apt) => (
                   <div
                     key={apt.id}
-                    className="p-4 hover:bg-slate-50 flex items-center justify-between transition-colors"
+                    className="group bg-slate-50 p-6 rounded-3xl border border-slate-100 hover:border-emerald-200 hover:bg-white hover:shadow-xl hover:shadow-emerald-100/50 transition-all duration-300"
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="bg-slate-100 p-2 rounded-lg">
-                        <Calendar className="w-5 h-5 text-slate-500" />
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="p-2.5 bg-white border border-slate-100 rounded-xl text-emerald-600 shadow-sm transition-transform group-hover:scale-110">
+                        <Calendar className="w-5 h-5" />
                       </div>
-                      <div>
-                        <p className="font-medium text-slate-900">
-                          {formatDateWithoutTimezone(apt.date)}
-                        </p>
-                        <p className="text-sm text-slate-500">
-                          {apt.startTime} - {apt.endTime}
-                        </p>
-                        <p className="text-sm font-medium text-emerald-600">
-                          {apt.service?.name || "Servicio"}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4">
                       <span
                         className={cn(
-                          "px-2 py-1 rounded-full text-xs font-medium",
+                          "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border-2",
                           apt.status === "CONFIRMED"
-                            ? "text-green-600 bg-green-50"
+                            ? "text-emerald-600 bg-emerald-50 border-emerald-100/30"
                             : apt.status === "COMPLETED"
-                              ? "text-blue-600 bg-blue-50"
+                              ? "text-blue-600 bg-blue-50 border-blue-100/30"
                               : apt.status === "CANCELLED"
-                                ? "text-red-600 bg-red-50"
-                                : "text-amber-600 bg-amber-50",
+                                ? "text-red-600 bg-red-50 border-red-100/30"
+                                : "text-amber-600 bg-amber-50 border-amber-100/30",
                         )}
                       >
                         {apt.status === "CONFIRMED"
                           ? "Confirmada"
                           : apt.status === "COMPLETED"
-                            ? "Completada"
+                            ? "Atendida"
                             : apt.status === "CANCELLED"
                               ? "Cancelada"
                               : "Pendiente"}
                       </span>
                     </div>
+
+                    <div className="space-y-1">
+                      <p className="font-black text-slate-900 text-lg uppercase tracking-tight">
+                        {formatDateWithoutTimezone(apt.date)}
+                      </p>
+                      <div className="flex items-center gap-2 text-slate-500 font-bold text-xs">
+                        <Clock className="w-3.5 h-3.5 text-emerald-500" />
+                        {apt.startTime} - {apt.endTime}
+                      </div>
+                    </div>
+
+                    <div className="mt-6 pt-4 border-t border-slate-200/50">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                        Servicio
+                      </p>
+                      <p className="text-emerald-700 font-black text-sm">
+                        {apt.service?.name || "Sesión General"}
+                      </p>
+                    </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12 text-slate-500">
-                <Calendar className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>No hay citas encontradas.</p>
+              <div className="text-center py-20 bg-slate-50/50 rounded-4xl border border-dashed border-slate-200">
+                <div className="p-4 bg-white rounded-2xl border border-slate-100 shadow-sm w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                  <Calendar className="w-8 h-8 text-slate-300" />
+                </div>
+                <p className="text-slate-400 font-bold">
+                  No hay historial de citas aún.
+                </p>
                 <button
                   onClick={() => navigate("/dashboard/appointments/new")}
-                  className="mt-4 text-emerald-600 hover:text-emerald-700 font-medium"
+                  className="mt-6 text-emerald-600 font-black text-xs uppercase tracking-widest hover:bg-emerald-50 px-6 py-3 rounded-2xl transition-all border border-emerald-100"
                 >
-                  Agendar Cita
+                  Agendar Primera Cita
                 </button>
               </div>
             )}

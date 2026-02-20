@@ -30,8 +30,12 @@ export default function AddPatientPage() {
   return (
     <div className="p-6 max-w-4xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-800">Add New Patient</h1>
-        <p className="text-slate-500">Register a new patient to the system</p>
+        <h1 className="text-2xl font-bold text-slate-800">
+          Agregar nuevo paciente
+        </h1>
+        <p className="text-slate-500">
+          Registrar un nuevo paciente en el sistema
+        </p>
       </div>
 
       {error && (

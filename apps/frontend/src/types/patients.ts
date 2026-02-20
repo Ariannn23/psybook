@@ -3,6 +3,7 @@ import type { Appointment } from "./appointments";
 export interface Patient {
   id: string;
   name: string;
+  dni: string;
   email: string;
   phone: string;
   notes?: string;
@@ -13,6 +14,7 @@ export interface Patient {
 
 export interface CreatePatientInput {
   name: string;
+  dni: string;
   email: string;
   phone: string;
   notes?: string;

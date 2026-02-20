@@ -69,19 +69,19 @@ export default function NotificationBell() {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="relative p-2.5 rounded-full hover:bg-slate-100 transition-all duration-200 hover:scale-110 hover:shadow-md group"
+        className="relative p-2.5 rounded-full hover:bg-slate-100 transition-all duration-200 hover:scale-110 hover:shadow-md group cursor-pointer"
         title="Notificaciones"
       >
-        <Bell 
-          size={24} 
+        <Bell
+          size={24}
           className={cn(
             "text-slate-500 transition-all duration-200",
             unreadCount > 0 && "text-emerald-600",
-            "group-hover:text-emerald-600 group-hover:animate-pulse"
-          )} 
+            "group-hover:text-emerald-600 group-hover:animate-pulse",
+          )}
         />
         {unreadCount > 0 && (
-          <span className="absolute top-0 right-0 h-5 w-5 bg-gradient-to-br from-red-500 to-red-600 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-lg animate-pulse-glow ring-2 ring-red-200">
+          <span className="absolute top-0 right-0 h-5 w-5 bg-linear-to-br from-red-500 to-red-600 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-lg animate-pulse-glow ring-2 ring-red-200">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
@@ -89,7 +89,7 @@ export default function NotificationBell() {
 
       {isOpen && (
         <div className="absolute right-0 mt-2 w-80 bg-white/95 backdrop-blur-lg rounded-xl shadow-2xl border border-slate-200/50 z-50 max-h-96 overflow-hidden flex flex-col animate-slide-in">
-          <div className="p-4 border-b border-slate-200/50 bg-gradient-to-r from-slate-50/50 to-white flex items-center justify-between">
+          <div className="p-4 border-b border-slate-200/50 bg-linear-to-r from-slate-50/50 to-white flex items-center justify-between">
             <h3 className="font-semibold text-slate-800">Notificaciones</h3>
             {unreadCount > 0 && (
               <button
@@ -113,10 +113,10 @@ export default function NotificationBell() {
                   <div
                     key={notification.id}
                     className={cn(
-                      "p-4 hover:bg-gradient-to-r hover:from-slate-50 hover:to-emerald-50/30 transition-all duration-200 cursor-pointer border-l-2",
-                      !notification.read 
-                        ? "bg-blue-50/50 border-l-emerald-500" 
-                        : "border-l-transparent"
+                      "p-4 hover:bg-linear-to-r hover:from-slate-50 hover:to-emerald-50/30 transition-all duration-200 cursor-pointer border-l-2",
+                      !notification.read
+                        ? "bg-blue-50/50 border-l-emerald-500"
+                        : "border-l-transparent",
                     )}
                     onClick={() => {
                       if (!notification.read) {
@@ -127,8 +127,8 @@ export default function NotificationBell() {
                     <div className="flex items-start gap-3">
                       <div
                         className={cn(
-                          "p-2 rounded-lg flex-shrink-0",
-                          getNotificationColor(notification.type)
+                          "p-2 rounded-lg shrink-0",
+                          getNotificationColor(notification.type),
                         )}
                       >
                         <Bell size={16} />
@@ -139,7 +139,7 @@ export default function NotificationBell() {
                             "text-sm",
                             !notification.read
                               ? "font-semibold text-slate-800"
-                              : "text-slate-600"
+                              : "text-slate-600",
                           )}
                         >
                           {notification.message}
@@ -153,7 +153,8 @@ export default function NotificationBell() {
                           e.stopPropagation();
                           removeNotification(notification.id);
                         }}
-                        className="p-1 hover:bg-slate-200 rounded transition-colors flex-shrink-0"
+                        className="p-1 hover:bg-slate-200 rounded transition-colors shrink-0 cursor-pointer"
+                        title="Eliminar notificación"
                       >
                         <X size={14} className="text-slate-400" />
                       </button>

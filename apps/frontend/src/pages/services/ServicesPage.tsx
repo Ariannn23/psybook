@@ -18,6 +18,7 @@ import {
   AlertCircle,
   Pencil,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const serviceSchema = z.object({
   name: z.string().min(3, "El nombre debe tener al menos 3 caracteres"),
@@ -117,11 +118,16 @@ export default function ServicesPage() {
   };
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="p-6 space-y-8 animate-fade-in">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">Servicios</h1>
-          <p className="text-slate-500">Gestiona tus servicios de consulta</p>
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+            Servicios
+          </h1>
+          <p className="text-slate-500 mt-1">
+            Gestiona de forma eficiente tus servicios de consulta y
+            especialidades.
+          </p>
         </div>
         <button
           onClick={() => {
@@ -129,10 +135,11 @@ export default function ServicesPage() {
             reset({ duration: 60, price: 0, name: "", description: "" });
             setIsModalOpen(true);
           }}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors cursor-pointer"
+          className="group relative bg-slate-900 hover:bg-emerald-600 text-white px-6 py-3 rounded-2xl flex items-center gap-2 transition-all duration-300 shadow-lg shadow-slate-200 hover:shadow-emerald-200 active:scale-95 cursor-pointer"
         >
-          <Plus className="w-4 h-4" />
-          Agregar Servicio
+          <div className="absolute inset-0 bg-linear-to-r from-emerald-600 to-teal-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+          <Plus className="w-5 h-5 relative z-10" />
+          <span className="font-bold relative z-10">Agregar Servicio</span>
         </button>
       </div>
 
@@ -148,7 +155,7 @@ export default function ServicesPage() {
               className="group relative overflow-hidden bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col gap-4 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-emerald-200/50"
             >
               {/* Decorative Gradient Background on Hover */}
-              <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-emerald-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+              <div className="absolute inset-0 bg-linear-to-br from-transparent via-transparent to-emerald-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
               {/* Decorative Circle */}
               <div className="absolute -right-6 -top-6 w-24 h-24 bg-emerald-50 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-all duration-500 group-hover:scale-150 pointer-events-none" />
@@ -212,117 +219,153 @@ export default function ServicesPage() {
 
       {/* Create/Edit Service Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-xl shadow-xl max-w-md w-full p-6 animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-slate-800">
-                {editingService ? "Editar Servicio" : "Nuevo Servicio"}
-              </h2>
-              <button
-                onClick={closeModal}
-                className="text-slate-400 hover:text-slate-600 transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="bg-white rounded-4xl shadow-2xl max-w-md w-full overflow-hidden relative border border-slate-100 animate-in zoom-in-95 duration-300">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-50 rounded-full blur-3xl -mr-16 -mt-16 opacity-50"></div>
+
+            <div className="relative">
+              <div className="p-8 border-b border-slate-50">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-emerald-50 rounded-xl">
+                      <Plus className="w-5 h-5 text-emerald-600" />
+                    </div>
+                    <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+                      {editingService ? "Editar Servicio" : "Nuevo Servicio"}
+                    </h2>
+                  </div>
+                  <button
+                    onClick={closeModal}
+                    className="p-2 hover:bg-slate-50 rounded-xl text-slate-400 hover:text-slate-600 transition-all cursor-pointer"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              </div>
+
+              {error && (
+                <div className="mx-8 mt-6 bg-rose-50 text-rose-600 p-4 rounded-2xl text-xs font-bold flex items-center gap-2 border border-rose-100">
+                  <AlertCircle className="w-4 h-4" />
+                  {error}
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit(onSubmit)} className="p-8 space-y-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 ml-1">
+                    Nombre del Servicio
+                  </label>
+                  <input
+                    {...register("name")}
+                    className={cn(
+                      "w-full px-5 py-3.5 rounded-2xl border bg-slate-50 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all duration-300 font-semibold text-slate-700 shadow-sm",
+                      errors.name
+                        ? "border-rose-300 focus:ring-rose-500/10 focus:border-rose-500"
+                        : "border-slate-100 focus:border-emerald-500",
+                    )}
+                    placeholder="Ej. Consulta Inicial"
+                  />
+                  {errors.name && (
+                    <p className="text-xs text-rose-500 font-bold ml-1">
+                      {errors.name.message}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 ml-1">
+                    Descripción
+                  </label>
+                  <textarea
+                    {...register("description")}
+                    rows={2}
+                    className="w-full px-5 py-3.5 rounded-2xl border border-slate-100 bg-slate-50 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all duration-300 resize-none font-medium text-slate-600 shadow-sm"
+                    placeholder="Detalles opcionales..."
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 ml-1">
+                      Duración (min)
+                    </label>
+                    <input
+                      type="number"
+                      {...register("duration")}
+                      className={cn(
+                        "w-full px-5 py-3.5 rounded-2xl border bg-slate-50 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all duration-300 font-semibold text-slate-700 shadow-sm",
+                        errors.duration
+                          ? "border-rose-300 focus:ring-rose-500/10 focus:border-rose-500"
+                          : "border-slate-100 focus:border-emerald-500",
+                      )}
+                    />
+                    {errors.duration && (
+                      <p className="text-xs text-rose-500 font-bold ml-1">
+                        {errors.duration.message}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 ml-1">
+                      Precio ($)
+                    </label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      {...register("price")}
+                      className={cn(
+                        "w-full px-5 py-3.5 rounded-2xl border bg-slate-50 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 outline-none transition-all duration-300 font-semibold text-slate-700 shadow-sm",
+                        errors.price
+                          ? "border-rose-300 focus:ring-rose-500/10 focus:border-rose-500"
+                          : "border-slate-100 focus:border-emerald-500",
+                      )}
+                    />
+                    {errors.price && (
+                      <p className="text-xs text-rose-500 font-bold ml-1">
+                        {errors.price.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-slate-50">
+                  <button
+                    type="button"
+                    onClick={closeModal}
+                    className="px-6 py-3 text-slate-400 hover:text-slate-600 font-bold text-xs uppercase tracking-widest transition-colors cursor-pointer"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className={cn(
+                      "group relative overflow-hidden text-white px-8 py-3.5 rounded-2xl flex items-center gap-2 transition-all duration-300 hover:shadow-xl active:scale-95 disabled:opacity-50 font-bold uppercase tracking-widest text-xs cursor-pointer",
+                      editingService
+                        ? "bg-amber-500 hover:shadow-amber-100"
+                        : "bg-emerald-600 hover:shadow-emerald-100",
+                    )}
+                  >
+                    {isSubmitting ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : editingService ? (
+                      <Pencil className="w-4 h-4 relative z-10" />
+                    ) : (
+                      <Plus className="w-4 h-4 relative z-10" />
+                    )}
+                    <span className="relative z-10">
+                      {editingService
+                        ? "Actualizar Servicio"
+                        : "Crear Servicio"}
+                    </span>
+                  </button>
+                </div>
+              </form>
             </div>
-
-            {error && (
-              <div className="mb-4 bg-red-50 text-red-600 p-3 rounded-lg text-sm flex items-center gap-2">
-                <AlertCircle className="w-4 h-4" />
-                {error}
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">
-                  Nombre del Servicio
-                </label>
-                <input
-                  {...register("name")}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none"
-                  placeholder="Ej. Consulta Inicial"
-                />
-                {errors.name && (
-                  <p className="text-sm text-red-500">{errors.name.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">
-                  Descripción
-                </label>
-                <textarea
-                  {...register("description")}
-                  rows={2}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none resize-none"
-                  placeholder="Detalles opcionales..."
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">
-                    Duración (min)
-                  </label>
-                  <input
-                    type="number"
-                    {...register("duration")}
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none"
-                  />
-                  {errors.duration && (
-                    <p className="text-sm text-red-500">
-                      {errors.duration.message}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">
-                    Precio ($)
-                  </label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    {...register("price")}
-                    className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none"
-                  />
-                  {errors.price && (
-                    <p className="text-sm text-red-500">
-                      {errors.price.message}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-3 mt-6">
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className={cn(
-                    "text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors disabled:opacity-50",
-                    editingService
-                      ? "bg-amber-500 hover:bg-amber-600"
-                      : "bg-emerald-600 hover:bg-emerald-700",
-                  )}
-                >
-                  {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
-                  {editingService ? "Actualizar Servicio" : "Crear Servicio"}
-                </button>
-              </div>
-            </form>
           </div>
         </div>
       )}
     </div>
   );
 }
-// Add Utility for classnames if not imported
-import { cn } from "@/lib/utils";

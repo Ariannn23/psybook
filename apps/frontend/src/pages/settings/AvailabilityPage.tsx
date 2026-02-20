@@ -196,21 +196,25 @@ export default function AvailabilityPage() {
   );
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between">
+    <div className="p-6 space-y-8 animate-fade-in max-w-7xl mx-auto">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">Disponibilidad</h1>
-          <p className="text-slate-500">
-            Configura tus horarios de atención semanal.
+          <h1 className="text-3xl font-bold text-slate-900 tracking-tight">
+            Disponibilidad
+          </h1>
+          <p className="text-slate-500 mt-1">
+            Configura tus horarios de atención semanal y gestiona tus días
+            libres.
           </p>
         </div>
-        <div className="flex p-1 bg-slate-100 rounded-lg border border-slate-200">
+
+        <div className="flex p-1.5 bg-slate-100 rounded-2xl border border-slate-200 shadow-sm">
           <button
             onClick={() => setViewMode("weekly")}
             className={cn(
-              "p-2 rounded-md transition-all flex items-center gap-2 text-sm font-medium",
+              "px-4 py-2 rounded-xl transition-all flex items-center gap-2 text-xs font-bold uppercase tracking-widest",
               viewMode === "weekly"
-                ? "bg-white text-emerald-600 shadow-sm"
+                ? "bg-white text-emerald-600 shadow-md"
                 : "text-slate-500 hover:text-slate-700",
             )}
           >
@@ -220,9 +224,9 @@ export default function AvailabilityPage() {
           <button
             onClick={() => setViewMode("list")}
             className={cn(
-              "p-2 rounded-md transition-all flex items-center gap-2 text-sm font-medium",
+              "px-4 py-2 rounded-xl transition-all flex items-center gap-2 text-xs font-bold uppercase tracking-widest",
               viewMode === "list"
-                ? "bg-white text-emerald-600 shadow-sm"
+                ? "bg-white text-emerald-600 shadow-md"
                 : "text-slate-500 hover:text-slate-700",
             )}
           >
@@ -237,18 +241,19 @@ export default function AvailabilityPage() {
         <div className="md:col-span-1">
           <div
             className={cn(
-              "bg-white rounded-xl shadow-sm border border-slate-200 p-6 sticky top-6 transition-all",
-              editingSchedule && "ring-2 ring-emerald-500 border-emerald-500",
+              "bg-white rounded-4xl shadow-xl shadow-slate-200/50 border border-slate-100 p-8 sticky top-6 transition-all",
+              editingSchedule &&
+                "ring-4 ring-emerald-500/10 border-emerald-500/50",
             )}
           >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold text-slate-800">
-                {editingSchedule ? "Editar Horario" : "Agregar Horario"}
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+                {editingSchedule ? "Editar Horario" : "Nuevo Horario"}
               </h2>
               {editingSchedule && (
                 <button
                   onClick={cancelEdit}
-                  className="text-slate-400 hover:text-slate-600"
+                  className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-lg transition-all cursor-pointer"
                   title="Cancelar edición"
                 >
                   <X className="w-5 h-5" />
@@ -265,12 +270,12 @@ export default function AvailabilityPage() {
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">
+                <label className="text-xs font-bold uppercase tracking-widest text-slate-400">
                   Día de la Semana
                 </label>
                 <select
                   {...register("day")}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none"
+                  className="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-white focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all shadow-sm font-semibold text-slate-700 cursor-pointer appearance-none"
                 >
                   {DAYS.map((day, index) => (
                     <option key={index} value={index}>
@@ -280,30 +285,32 @@ export default function AvailabilityPage() {
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col gap-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">
+                  <label className="text-xs font-bold uppercase tracking-widest text-slate-400">
                     Inicio
                   </label>
                   <input
                     type="time"
                     {...register("startTime")}
                     className={cn(
-                      "w-full px-3 py-2 rounded-lg border border-slate-300 bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none",
-                      errors.startTime && "border-red-500",
+                      "w-full px-4 py-3.5 rounded-2xl border border-slate-200 bg-white focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all shadow-sm font-semibold text-slate-700",
+                      errors.startTime &&
+                        "border-red-500 focus:ring-red-500/10 focus:border-red-500",
                     )}
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-slate-700">
+                  <label className="text-xs font-bold uppercase tracking-widest text-slate-400">
                     Fin
                   </label>
                   <input
                     type="time"
                     {...register("endTime")}
                     className={cn(
-                      "w-full px-3 py-2 rounded-lg border border-slate-300 bg-slate-50 focus:ring-2 focus:ring-emerald-500 outline-none",
-                      errors.endTime && "border-red-500",
+                      "w-full px-4 py-3.5 rounded-2xl border border-slate-200 bg-white focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all shadow-sm font-semibold text-slate-700",
+                      errors.endTime &&
+                        "border-red-500 focus:ring-red-500/10 focus:border-red-500",
                     )}
                   />
                 </div>
@@ -316,22 +323,29 @@ export default function AvailabilityPage() {
                 type="submit"
                 disabled={isSubmitting}
                 className={cn(
-                  "w-full text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-50 mt-2 cursor-pointer",
+                  "group relative w-full text-white px-6 py-3 rounded-2xl flex items-center justify-center gap-2 transition-all duration-300 shadow-lg active:scale-95 disabled:opacity-50 mt-4 overflow-hidden cursor-pointer",
                   editingSchedule
-                    ? "bg-amber-500 hover:bg-amber-600"
-                    : "bg-emerald-600 hover:bg-emerald-700",
+                    ? "bg-amber-500 hover:bg-amber-600 shadow-amber-100"
+                    : "bg-slate-900 hover:bg-emerald-600 shadow-slate-200 hover:shadow-emerald-200",
                 )}
               >
+                {!editingSchedule && (
+                  <div className="absolute inset-0 bg-linear-to-r from-emerald-600 to-teal-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+                )}
                 {isSubmitting ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader2 className="w-5 h-5 animate-spin relative z-10" />
                 ) : (
                   <>
                     {editingSchedule ? (
-                      <Pencil className="w-4 h-4" />
+                      <Pencil className="w-5 h-5 relative z-10" />
                     ) : (
-                      <Plus className="w-4 h-4" />
+                      <Plus className="w-5 h-5 relative z-10" />
                     )}
-                    {editingSchedule ? "Actualizar" : "Agregar"}
+                    <span className="font-semibold relative z-10">
+                      {editingSchedule
+                        ? "Actualizar Horario"
+                        : "Agregar Horario"}
+                    </span>
                   </>
                 )}
               </button>
@@ -358,16 +372,16 @@ export default function AvailabilityPage() {
                   <div
                     key={dayIndex}
                     className={cn(
-                      "flex flex-col sm:flex-row sm:items-center gap-4 bg-white p-4 rounded-xl border transition-all hover:shadow-md",
+                      "flex flex-col sm:flex-row sm:items-center gap-6 bg-white p-6 rounded-4xl border transition-all duration-300 hover:shadow-xl",
                       isToday
-                        ? "border-emerald-500 shadow-sm ring-1 ring-emerald-500/20"
-                        : "border-slate-200 shadow-sm",
+                        ? "border-emerald-500 shadow-xl shadow-emerald-500/10 ring-4 ring-emerald-500/5"
+                        : "border-slate-100 shadow-xl shadow-slate-200/50",
                     )}
                   >
                     <div className="w-24 shrink-0 flex flex-col gap-2">
                       <div
                         className={cn(
-                          "inline-flex justify-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider w-full",
+                          "inline-flex justify-center px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider w-full",
                           isToday
                             ? "bg-emerald-100 text-emerald-700"
                             : "bg-slate-100 text-slate-500",
@@ -406,7 +420,7 @@ export default function AvailabilityPage() {
                                 : "hover:border-emerald-300 hover:shadow-sm",
                             )}
                           >
-                            <span className="font-semibold text-slate-700">
+                            <span className="font-semibold text-slate-700 tabular-nums">
                               {schedule.startTime} - {schedule.endTime}
                             </span>
 
