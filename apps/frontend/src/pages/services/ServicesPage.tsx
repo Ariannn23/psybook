@@ -13,7 +13,6 @@ import {
   Loader2,
   Plus,
   Clock,
-  DollarSign,
   Trash2,
   X,
   AlertCircle,
@@ -130,7 +129,7 @@ export default function ServicesPage() {
             reset({ duration: 60, price: 0, name: "", description: "" });
             setIsModalOpen(true);
           }}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+          className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           Agregar Servicio
@@ -146,43 +145,58 @@ export default function ServicesPage() {
           {services.map((service) => (
             <div
               key={service.id}
-              onClick={() => handleEdit(service)}
-              className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col gap-4 relative group cursor-pointer hover:shadow-md hover:border-emerald-200 transition-all"
+              className="group relative overflow-hidden bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col gap-4 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-emerald-200/50"
             >
-              <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              {/* Decorative Gradient Background on Hover */}
+              <div className="absolute inset-0 bg-gradient-to-br from-transparent via-transparent to-emerald-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+
+              {/* Decorative Circle */}
+              <div className="absolute -right-6 -top-6 w-24 h-24 bg-emerald-50 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-all duration-500 group-hover:scale-150 pointer-events-none" />
+
+              <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200 z-10 translate-x-2 group-hover:translate-x-0">
                 <button
-                  className="text-emerald-500 hover:text-emerald-700 bg-emerald-50 p-1.5 rounded-md"
+                  className="bg-white/90 backdrop-blur-sm text-emerald-600 hover:bg-emerald-50 p-2 rounded-lg shadow-sm border border-slate-100 transition-colors cursor-pointer"
                   title="Editar"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEdit(service);
+                  }}
                 >
                   <Pencil className="w-4 h-4" />
                 </button>
                 <button
                   onClick={(e) => handleDelete(service.id, e)}
-                  className="text-slate-400 hover:text-red-500 bg-red-50 p-1.5 rounded-md"
+                  className="bg-white/90 backdrop-blur-sm text-slate-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg shadow-sm border border-slate-100 transition-colors cursor-pointer"
                   title="Eliminar"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>
 
-              <div>
-                <h3 className="text-lg font-bold text-slate-800 pr-16">
+              <div className="relative z-0">
+                <div className="w-12 h-12 rounded-xl bg-emerald-100/50 flex items-center justify-center text-emerald-600 mb-4 group-hover:scale-110 transition-transform duration-300 shadow-sm border border-emerald-200/50">
+                  <span className="text-xl font-bold">
+                    {service.name.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+
+                <h3 className="text-xl font-bold text-slate-800 tracking-tight mb-2 group-hover:text-emerald-700 transition-colors line-clamp-1 pr-16">
                   {service.name}
                 </h3>
                 {service.description && (
-                  <p className="text-slate-500 text-sm mt-1 line-clamp-2">
+                  <p className="text-slate-500 text-sm leading-relaxed line-clamp-2 mb-4 h-10">
                     {service.description}
                   </p>
                 )}
               </div>
 
-              <div className="flex items-center gap-4 text-sm mt-auto pt-4 border-t border-slate-100">
-                <div className="flex items-center gap-1.5 text-slate-600 bg-slate-100 px-2.5 py-1 rounded-md">
+              <div className="mt-auto pt-4 border-t border-slate-50 relative z-0 flex items-center justify-between">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-100/50">
                   <Clock className="w-3.5 h-3.5" />
                   {service.duration} min
                 </div>
-                <div className="flex items-center gap-1.5 text-slate-600 bg-slate-100 px-2.5 py-1 rounded-md">
-                  <DollarSign className="w-3.5 h-3.5" />
+                <div className="flex items-center gap-1 text-slate-700 font-bold text-lg">
+                  <span className="text-sm font-normal text-slate-400">$</span>
                   {service.price}
                 </div>
               </div>

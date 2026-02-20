@@ -2,9 +2,7 @@ import { useEffect, useState } from "react";
 import { getPatients, deletePatient } from "@/api/patients";
 import type { Patient } from "@/types/patients";
 import { Loader2, Plus, Search, Trash2, Eye, Pencil } from "lucide-react";
-import axios from "axios";
 import { Link } from "react-router-dom";
-import { cn } from "@/lib/utils";
 
 export default function PatientsPage() {
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -61,7 +59,7 @@ export default function PatientsPage() {
         </Link>
       </div>
 
-      <div className="bg-white rounded-xl shadow border border-slate-200 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-sm border border-emerald-100/60 overflow-hidden">
         <div className="p-4 border-b border-slate-200">
           <div className="relative max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -77,7 +75,7 @@ export default function PatientsPage() {
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm text-slate-600">
-            <thead className="bg-slate-50 text-slate-700 font-semibold border-b border-slate-200">
+            <thead className="bg-emerald-50/50 text-emerald-900 font-semibold border-b border-emerald-100">
               <tr>
                 <th className="p-4">Nombre</th>
                 <th className="p-4">Correo</th>
@@ -102,7 +100,7 @@ export default function PatientsPage() {
                 filteredPatients.map((patient) => (
                   <tr
                     key={patient.id}
-                    className="hover:bg-slate-50 transition-colors"
+                    className="group hover:bg-emerald-50/30 transition-colors duration-200 border-b last:border-0 border-emerald-50/50"
                   >
                     <td className="p-4 font-medium text-slate-900">
                       {patient.name}
@@ -113,17 +111,21 @@ export default function PatientsPage() {
                       <div className="flex justify-end gap-2">
                         <Link
                           to={`/dashboard/patients/${patient.id}`}
-                          className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-emerald-600 transition-colors"
+                          className="p-2 hover:bg-emerald-50 rounded-lg text-slate-400 hover:text-emerald-600 transition-colors cursor-pointer"
+                          title="Ver detalle"
                         >
                           <Eye className="w-4 h-4" />
                         </Link>
-                        {/* Edit placeholder */}
-                        <button className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-amber-600 transition-colors">
+                        <button
+                          className="p-2 hover:bg-emerald-50 rounded-lg text-slate-400 hover:text-emerald-600 transition-colors cursor-pointer"
+                          title="Editar"
+                        >
                           <Pencil className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(patient.id)}
-                          className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-red-600 transition-colors"
+                          className="p-2 hover:bg-red-50 rounded-lg text-slate-400 hover:text-red-500 transition-colors cursor-pointer"
+                          title="Eliminar"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>

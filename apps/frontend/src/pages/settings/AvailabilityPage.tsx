@@ -60,7 +60,6 @@ export default function AvailabilityPage() {
   const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
   const [viewMode, setViewMode] = useState<"list" | "weekly">("weekly");
 
-
   const {
     register,
     handleSubmit,
@@ -212,7 +211,7 @@ export default function AvailabilityPage() {
               "p-2 rounded-md transition-all flex items-center gap-2 text-sm font-medium",
               viewMode === "weekly"
                 ? "bg-white text-emerald-600 shadow-sm"
-                : "text-slate-500 hover:text-slate-700"
+                : "text-slate-500 hover:text-slate-700",
             )}
           >
             <LayoutGrid className="w-4 h-4" />
@@ -224,7 +223,7 @@ export default function AvailabilityPage() {
               "p-2 rounded-md transition-all flex items-center gap-2 text-sm font-medium",
               viewMode === "list"
                 ? "bg-white text-emerald-600 shadow-sm"
-                : "text-slate-500 hover:text-slate-700"
+                : "text-slate-500 hover:text-slate-700",
             )}
           >
             <List className="w-4 h-4" />
@@ -317,7 +316,7 @@ export default function AvailabilityPage() {
                 type="submit"
                 disabled={isSubmitting}
                 className={cn(
-                  "w-full text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-50 mt-2",
+                  "w-full text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-50 mt-2 cursor-pointer",
                   editingSchedule
                     ? "bg-amber-500 hover:bg-amber-600"
                     : "bg-emerald-600 hover:bg-emerald-700",
@@ -347,11 +346,7 @@ export default function AvailabilityPage() {
               <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
             </div>
           ) : viewMode === "weekly" ? (
-            <WeeklyScheduleView
-              schedules={schedules}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
+            <WeeklyScheduleView schedules={schedules} />
           ) : (
             <div className="space-y-4">
               {DAYS.map((dayName, dayIndex) => {
@@ -384,14 +379,14 @@ export default function AvailabilityPage() {
                       {hasSchedules ? (
                         <button
                           onClick={() => handleSetDayOff(dayIndex)}
-                          className="text-[10px] text-red-500 hover:text-red-700 hover:bg-red-50 py-1 px-2 rounded transition-colors text-center w-full"
+                          className="text-[10px] text-red-500 hover:text-red-700 hover:bg-red-50 py-1 px-2 rounded transition-colors text-center w-full cursor-pointer"
                         >
                           Marcar libre
                         </button>
                       ) : (
                         <button
                           onClick={() => handleQuickAdd(dayIndex)}
-                          className="text-[10px] text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 py-1 px-2 rounded transition-colors text-center w-full flex items-center justify-center gap-1"
+                          className="text-[10px] text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 py-1 px-2 rounded transition-colors text-center w-full flex items-center justify-center gap-1 cursor-pointer"
                         >
                           <Plus className="w-3 h-3" />
                           Agregar
@@ -418,14 +413,14 @@ export default function AvailabilityPage() {
                             <div className="flex items-center gap-1 ml-2 opacity-0 group-hover:opacity-100 transition-opacity">
                               <button
                                 onClick={() => handleEdit(schedule)}
-                                className="text-amber-500 hover:text-amber-700 hover:bg-amber-100 rounded p-1 transition-colors"
+                                className="text-amber-500 hover:text-amber-700 hover:bg-amber-100 rounded p-1 transition-colors cursor-pointer"
                                 title="Editar"
                               >
                                 <Pencil className="w-3.5 h-3.5" />
                               </button>
                               <button
                                 onClick={() => handleDelete(schedule.id)}
-                                className="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded p-1 transition-colors"
+                                className="text-slate-400 hover:text-red-500 hover:bg-red-50 rounded p-1 transition-colors cursor-pointer"
                                 title="Eliminar"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
