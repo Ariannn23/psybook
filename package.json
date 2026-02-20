@@ -1,0 +1,21 @@
+{
+  "name": "psybook",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:backend": "npm --workspace=apps/backend run dev",
+    "build:backend": "npm --workspace=apps/backend run build",
+    "lint": "npm --workspaces run lint --if-present"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "node-cron": "^4.2.1",
+    "recharts": "^3.7.0"
+  }
+}

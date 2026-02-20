@@ -1,0 +1,38 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:15
+    container_name: psybook_db
+    restart: always
+    environment:
+      POSTGRES_DB: psybook
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    ports:
+      - "5432:5432"
+    volumes:
+      - psybook_pgdata:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./apps/backend
+      dockerfile: Dockerfile
+    container_name: psybook_backend
+    restart: always
+    ports:
+      - "4000:4000"
+    environment:
+      DATABASE_URL: postgresql://admin:admin@db:5432/psybook
+      JWT_SECRET: psybook_jwt_secret_dev_2024
+      PORT: 4000
+      MAIL_HOST: smtp.gmail.com
+      MAIL_PORT: 587
+      MAIL_USER: your_email@gmail.com
+      MAIL_PASS: your_app_password
+      FRONTEND_URL: http://localhost:5173
+    depends_on:
+      - db
+
+volumes:
+  psybook_pgdata:
