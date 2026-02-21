@@ -470,7 +470,7 @@ export default function AppointmentsPage() {
                                   </div>
                                 </td>
                                 <td className="p-6 text-right">
-                                  <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-4 group-hover:translate-x-0">
+                                  <div className="flex items-center justify-end gap-2 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 md:translate-x-4 md:group-hover:translate-x-0">
                                     <button
                                       onClick={() => handleView(apt)}
                                       title="Ver Detalles"

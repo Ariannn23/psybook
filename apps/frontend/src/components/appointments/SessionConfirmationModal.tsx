@@ -1,15 +1,12 @@
 import { useState } from "react";
 import {
   CheckCircle,
-  Calendar,
-  Clock,
   User,
   FileText,
   ArrowRight,
   X,
   History,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import type { Appointment } from "@/types/appointments";
 
 interface SessionConfirmationModalProps {
@@ -57,6 +54,7 @@ export default function SessionConfirmationModal({
           <button
             onClick={onCancel}
             className="p-2 hover:bg-slate-200 rounded-full transition-colors"
+            title="Cerrar"
           >
             <X className="w-5 h-5 text-slate-400" />
           </button>

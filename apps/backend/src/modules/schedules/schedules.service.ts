@@ -61,9 +61,6 @@ export async function updateSchedule(
   userId: string,
   data: CreateScheduleInput,
 ) {
-  console.log(`[updateSchedule] Updating schedule ${id} for user ${userId}`);
-  console.log(`[updateSchedule] Data:`, data);
-
   const schedule = await prisma.schedule.findUnique({ where: { id } });
   if (!schedule) throw createError("Schedule not found", 404);
   if (schedule.userId !== userId) throw createError("Unauthorized", 403);
@@ -77,13 +74,6 @@ export async function updateSchedule(
     },
   });
 
-  console.log(
-    `[updateSchedule] Found ${existingSchedules.length} other schedules on day ${data.day}`,
-  );
-  existingSchedules.forEach((s) =>
-    console.log(` - ID: ${s.id}, Time: ${s.startTime}-${s.endTime}`),
-  );
-
   const newStart = parseTime(data.startTime);
   const newEnd = parseTime(data.endTime);
 
@@ -92,7 +82,6 @@ export async function updateSchedule(
     const existingEnd = parseTime(s.endTime);
 
     if (newStart < existingEnd && newEnd > existingStart) {
-      console.log(`[updateSchedule] Collision detected with schedule ${s.id}`);
       throw createError("Schedule overlaps with an existing time slot", 409);
     }
   }

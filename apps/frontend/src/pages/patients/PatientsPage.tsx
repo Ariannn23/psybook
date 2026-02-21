@@ -207,7 +207,7 @@ export default function PatientsPage() {
                         )}
                       </td>
                       <td className="p-6 text-right">
-                        <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-x-4 group-hover:translate-x-0">
+                        <div className="flex justify-end gap-2 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 md:translate-x-4 md:group-hover:translate-x-0">
                           <Link
                             to={`/dashboard/patients/${patient.id}`}
                             className="p-3 bg-white border border-slate-100 shadow-sm rounded-xl text-slate-400 hover:text-emerald-600 hover:border-emerald-100 hover:shadow-emerald-100 transition-all"

@@ -14,7 +14,7 @@ export default function PageLoader({
   return (
     <div
       className={cn(
-        fullPage ? "fixed inset-0 z-[100]" : "w-full min-h-[400px] flex-1",
+        fullPage ? "fixed inset-0 z-100" : "w-full min-h-[400px] flex-1",
         "flex flex-col items-center justify-center bg-white animate-in fade-in duration-500",
         className,
       )}

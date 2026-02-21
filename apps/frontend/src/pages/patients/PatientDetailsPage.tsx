@@ -11,6 +11,7 @@ import {
   FileText,
   ArrowLeft,
   Pencil,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import MedicalRecordTimeline from "@/components/patients/MedicalRecordTimeline";
@@ -409,32 +410,38 @@ export default function PatientDetailsPage() {
             )}
           </div>
         )}
+
         {/* Modal de Detalles de Cita */}
         {selectedAppointment && (
-          <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in">
+          <div
+            className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in"
+            onClick={() => setSelectedAppointment(null)}
+          >
             <div
-              className="bg-white rounded-4xl shadow-2xl w-full max-w-lg overflow-hidden animate-scale-in"
+              className="bg-white rounded-4xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden animate-scale-in"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="p-8 space-y-8">
+              {/* Scrollable Content */}
+              <div className="flex-1 overflow-y-auto p-8 space-y-8 scrollbar-thin scrollbar-thumb-slate-200">
                 <div className="flex justify-between items-start">
                   <div className="space-y-1">
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-widest border border-emerald-100">
                       Detalles de la Cita
                     </div>
-                    <h2 className="text-3xl font-black text-slate-900">
-                      Resumen de Sesión
+                    <h2 className="text-3xl font-black text-slate-900 tracking-tight">
+                      Resumen
                     </h2>
                   </div>
                   <button
                     onClick={() => setSelectedAppointment(null)}
-                    className="p-2 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                    className="p-2 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer group"
+                    title="Cerrar"
                   >
-                    <ArrowLeft className="rotate-90 w-5 h-5 text-slate-400" />
+                    <X className="w-6 h-6 text-slate-400 group-hover:text-red-500" />
                   </button>
                 </div>
 
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
                       Fecha
@@ -497,7 +504,7 @@ export default function PatientDetailsPage() {
                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
                         Motivo de Consulta
                       </p>
-                      <p className="text-slate-600 font-medium leading-relaxed text-sm">
+                      <p className="text-slate-600 font-medium leading-relaxed text-sm whitespace-pre-wrap">
                         {selectedAppointment.reason}
                       </p>
                     </div>
@@ -508,16 +515,19 @@ export default function PatientDetailsPage() {
                       <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-2">
                         Notas de Sesión
                       </p>
-                      <p className="text-emerald-900 font-medium leading-relaxed text-sm">
+                      <p className="text-emerald-900 font-medium leading-relaxed text-sm whitespace-pre-wrap">
                         {selectedAppointment.notes}
                       </p>
                     </div>
                   )}
                 </div>
+              </div>
 
+              {/* Fixed Footer */}
+              <div className="p-6 bg-slate-50 border-t border-slate-100">
                 <button
                   onClick={() => setSelectedAppointment(null)}
-                  className="w-full py-4 bg-slate-900 text-white font-black rounded-2xl hover:bg-slate-800 transition-all cursor-pointer uppercase tracking-widest text-xs"
+                  className="w-full py-4 bg-slate-900 text-white font-black rounded-2xl hover:bg-slate-800 transition-all cursor-pointer uppercase tracking-widest text-xs shadow-lg shadow-slate-200"
                 >
                   Cerrar Detalles
                 </button>

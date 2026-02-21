@@ -24,8 +24,14 @@ import type { DashboardStats as DashboardStatsType } from "@/api/dashboard";
 import PageLoader from "@/components/ui/PageLoader";
 
 export default function DashboardPage() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { user, logout } = useAuth();
   const location = useLocation();
+
+  // Close sidebar when route changes on mobile
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, [location]);
 
   const navItems = [
     {
@@ -44,21 +50,66 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row">
-      {/* Sidebar */}
-      <aside className="w-full md:w-64 bg-white/80 backdrop-blur-lg border-r border-slate-200/50 flex-shrink-0 shadow-lg">
-        <div className="p-6 border-b border-slate-200/50 flex items-center gap-3 bg-gradient-to-r from-emerald-50/50 to-teal-50/50">
-          <div className="relative">
-            <img
-              src="/icono_psybook.png"
-              alt="PsyBook Logo"
-              className="w-10 h-10 object-contain drop-shadow-sm"
-            />
-            <div className="absolute inset-0 bg-emerald-400/20 rounded-full blur-xl -z-10"></div>
-          </div>
-          <h1 className="text-xl font-bold gradient-text">PsyBook</h1>
+    <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row relative">
+      {/* Mobile Top Bar */}
+      <header className="md:hidden sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-4 py-3">
+        <div className="flex items-center gap-2">
+          <img src="/icono_psybook.png" alt="Logo" className="w-8 h-8" />
+          <span className="font-bold text-slate-900 tracking-tight">
+            PsyBook
+          </span>
         </div>
-        <nav className="p-4 space-y-1">
+        <div className="flex items-center gap-2">
+          <NotificationBell />
+          <button
+            onClick={() => setIsSidebarOpen(true)}
+            className="p-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors"
+            title="Abrir Menú"
+          >
+            <Menu className="w-6 h-6" />
+          </button>
+        </div>
+      </header>
+
+      {/* Sidebar Backdrop (Mobile) */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 md:hidden animate-fade-in"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={cn(
+          "fixed md:sticky top-0 left-0 bottom-0 z-50 w-72 md:w-64 bg-white border-r border-slate-200/60 flex-shrink-0 shadow-2xl md:shadow-lg transition-transform duration-300 md:translate-x-0 flex flex-col",
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full",
+        )}
+      >
+        <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-emerald-50/10">
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <img
+                src="/icono_psybook.png"
+                alt="PsyBook Logo"
+                className="w-9 h-9 object-contain drop-shadow-sm"
+              />
+              <div className="absolute inset-0 bg-emerald-400/20 rounded-full blur-xl -z-10"></div>
+            </div>
+            <h1 className="text-xl font-black text-slate-900 tracking-tight">
+              PsyBook
+            </h1>
+          </div>
+          <button
+            onClick={() => setIsSidebarOpen(false)}
+            className="md:hidden p-2 text-slate-400 hover:bg-slate-50 rounded-xl transition-colors"
+            title="Cerrar Menú"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <nav className="flex-1 overflow-y-auto p-4 space-y-1.5 scrollbar-thin scrollbar-thumb-slate-100">
           {navItems.map((item) => {
             const isActive = item.exact
               ? location.pathname === item.href
@@ -69,58 +120,53 @@ export default function DashboardPage() {
                 key={item.href}
                 to={item.href}
                 className={cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-sm font-medium relative group",
+                  "flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 text-sm font-bold relative group",
                   isActive
-                    ? "bg-gradient-to-r from-emerald-50 to-emerald-100/50 text-emerald-600 shadow-sm"
-                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900 hover:translate-x-1",
+                    ? "bg-slate-900 text-white shadow-xl shadow-slate-200"
+                    : "text-slate-500 hover:bg-emerald-50/50 hover:text-emerald-700 hover:translate-x-1",
                 )}
               >
-                {isActive && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-gradient-to-b from-emerald-500 to-emerald-600 rounded-r-full"></div>
-                )}
                 <item.icon
                   size={18}
                   className={cn(
-                    "transition-transform duration-200",
+                    "transition-transform duration-300",
                     isActive && "scale-110",
                     !isActive && "group-hover:scale-110",
                   )}
                 />
-                <span
-                  className={cn(
-                    "transition-all duration-200",
-                    isActive && "font-semibold",
-                  )}
-                >
-                  {item.label}
-                </span>
+                <span className="relative z-10">{item.label}</span>
+                {isActive && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-emerald-500 rounded-r-full"></div>
+                )}
               </Link>
             );
           })}
         </nav>
-        <div className="p-4 mt-auto border-t border-slate-200">
-          <div className="flex items-center gap-3 px-4 py-3 mb-2 group/user">
-            <div className="h-10 w-10 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-full flex items-center justify-center text-emerald-600 shadow-sm group-hover/user:shadow-md group-hover/user:scale-105 transition-all duration-200">
+
+        <div className="p-4 border-t border-slate-100 bg-slate-50/50 mt-auto">
+          <Link
+            to="/dashboard/profile"
+            className="flex items-center gap-3 px-4 py-4 mb-3 rounded-2xl hover:bg-white hover:shadow-lg transition-all duration-300 group/user"
+          >
+            <div className="h-10 w-10 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-xl flex items-center justify-center text-emerald-700 shadow-sm group-hover/user:scale-105 transition-all">
               <UserIcon size={18} />
             </div>
             <div className="overflow-hidden">
-              <Link to="/dashboard/profile" className="block">
-                <p className="text-sm font-medium text-slate-800 truncate hover:text-emerald-600 transition-colors">
-                  {user?.name}
-                </p>
-              </Link>
-              <p className="text-xs text-slate-500 capitalize truncate">
+              <p className="text-sm font-black text-slate-900 truncate">
+                {user?.name}
+              </p>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest truncate">
                 {user?.role === "ADMIN" ? "Administrador" : "Psicólogo"}
               </p>
             </div>
-          </div>
+          </Link>
           <button
             onClick={logout}
-            className="w-full flex items-center gap-3 px-4 py-2.5 text-slate-500 hover:text-red-600 transition-all duration-200 text-sm font-medium hover:bg-red-50 rounded-lg hover:shadow-sm hover:scale-[1.02] group"
+            className="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-red-600 transition-all duration-300 text-sm font-bold hover:bg-red-50 rounded-xl group/logout"
           >
             <LogOut
               size={18}
-              className="group-hover:rotate-12 transition-transform duration-200"
+              className="group-hover/logout:-translate-x-1 transition-transform"
             />
             <span>Cerrar Sesión</span>
           </button>
@@ -128,15 +174,27 @@ export default function DashboardPage() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto">
+      <main className="flex-1 overflow-x-hidden min-h-[calc(100vh-64px)] md:min-h-screen">
         {/* Page Content */}
         {location.pathname === "/dashboard" ? (
-          <div className="p-6 space-y-6">
-            <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-bold text-slate-800">Resumen</h1>
-              <div className="flex items-center gap-4 animate-slide-in">
+          <div className="p-4 md:p-8 space-y-8 max-w-7xl mx-auto animate-fade-in">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h1 className="text-3xl font-black text-slate-900 tracking-tight leading-tight">
+                  Resumen General
+                </h1>
+                <p className="text-slate-500 font-medium mt-1">
+                  Bienvenido de nuevo,{" "}
+                  <span className="text-emerald-600 font-bold">
+                    {user?.name}
+                  </span>
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
                 <DigitalClock />
-                <NotificationBell />
+                <div className="hidden md:block">
+                  <NotificationBell />
+                </div>
               </div>
             </div>
             <DashboardContent />

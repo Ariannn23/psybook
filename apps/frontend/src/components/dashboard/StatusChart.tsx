@@ -48,7 +48,7 @@ export default function StatusChart({ data }: StatusChartProps) {
             cy="50%"
             labelLine={false}
             label={({ name, percent }) =>
-              `${name}: ${(percent * 100).toFixed(0)}%`
+              `${name}: ${((percent || 0) * 100).toFixed(0)}%`
             }
             outerRadius={100}
             fill="#8884d8"
@@ -70,9 +70,7 @@ export default function StatusChart({ data }: StatusChartProps) {
             verticalAlign="bottom"
             height={36}
             formatter={(value) => (
-              <span style={{ color: "#475569", fontSize: "12px" }}>
-                {value}
-              </span>
+              <span className="text-slate-600 text-xs">{value}</span>
             )}
           />
         </PieChart>

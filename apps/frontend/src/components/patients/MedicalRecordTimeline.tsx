@@ -177,7 +177,7 @@ export default function MedicalRecordTimeline({
               </div>
             )}
 
-            <div className="flex justify-between items-center bg-slate-50/50 p-4 rounded-2xl border border-slate-50">
+            <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center bg-slate-50/50 p-4 rounded-2xl border border-slate-50 gap-4">
               <div className="relative">
                 <input
                   type="file"
