@@ -11,12 +11,13 @@ const envSchema = z.object({
   FRONTEND_URL: z.string().default("http://localhost:5173"),
 });
 
-const parsed = envSchema.safeParse(process.env);
+const result = envSchema.safeParse(process.env);
 
-if (!parsed.success) {
+if (!result.success) {
   console.error("❌ Invalid environment variables:");
-  console.error(parsed.error.flatten().fieldErrors);
+  console.error(result.error.flatten().fieldErrors);
   process.exit(1);
 }
 
-export const env = parsed.data;
+export const env = result.data;
+export type Env = z.infer<typeof envSchema>;
