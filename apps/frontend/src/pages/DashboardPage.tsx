@@ -21,6 +21,7 @@ import ActivityChart from "@/components/dashboard/ActivityChart";
 import StatusChart from "@/components/dashboard/StatusChart";
 import { getDashboardStats } from "@/api/dashboard";
 import type { DashboardStats as DashboardStatsType } from "@/api/dashboard";
+import PageLoader from "@/components/ui/PageLoader";
 
 export default function DashboardPage() {
   const { user, logout } = useAuth();
@@ -48,16 +49,14 @@ export default function DashboardPage() {
       <aside className="w-full md:w-64 bg-white/80 backdrop-blur-lg border-r border-slate-200/50 flex-shrink-0 shadow-lg">
         <div className="p-6 border-b border-slate-200/50 flex items-center gap-3 bg-gradient-to-r from-emerald-50/50 to-teal-50/50">
           <div className="relative">
-            <img 
-              src="/icono_psybook.png" 
-              alt="PsyBook Logo" 
+            <img
+              src="/icono_psybook.png"
+              alt="PsyBook Logo"
               className="w-10 h-10 object-contain drop-shadow-sm"
             />
             <div className="absolute inset-0 bg-emerald-400/20 rounded-full blur-xl -z-10"></div>
           </div>
-          <h1 className="text-xl font-bold gradient-text">
-            PsyBook
-          </h1>
+          <h1 className="text-xl font-bold gradient-text">PsyBook</h1>
         </div>
         <nav className="p-4 space-y-1">
           {navItems.map((item) => {
@@ -79,18 +78,20 @@ export default function DashboardPage() {
                 {isActive && (
                   <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-gradient-to-b from-emerald-500 to-emerald-600 rounded-r-full"></div>
                 )}
-                <item.icon 
-                  size={18} 
+                <item.icon
+                  size={18}
                   className={cn(
                     "transition-transform duration-200",
                     isActive && "scale-110",
-                    !isActive && "group-hover:scale-110"
-                  )} 
+                    !isActive && "group-hover:scale-110",
+                  )}
                 />
-                <span className={cn(
-                  "transition-all duration-200",
-                  isActive && "font-semibold"
-                )}>
+                <span
+                  className={cn(
+                    "transition-all duration-200",
+                    isActive && "font-semibold",
+                  )}
+                >
                   {item.label}
                 </span>
               </Link>
@@ -98,7 +99,7 @@ export default function DashboardPage() {
           })}
         </nav>
         <div className="p-4 mt-auto border-t border-slate-200">
-            <div className="flex items-center gap-3 px-4 py-3 mb-2 group/user">
+          <div className="flex items-center gap-3 px-4 py-3 mb-2 group/user">
             <div className="h-10 w-10 bg-gradient-to-br from-emerald-100 to-emerald-200 rounded-full flex items-center justify-center text-emerald-600 shadow-sm group-hover/user:shadow-md group-hover/user:scale-105 transition-all duration-200">
               <UserIcon size={18} />
             </div>
@@ -117,7 +118,10 @@ export default function DashboardPage() {
             onClick={logout}
             className="w-full flex items-center gap-3 px-4 py-2.5 text-slate-500 hover:text-red-600 transition-all duration-200 text-sm font-medium hover:bg-red-50 rounded-lg hover:shadow-sm hover:scale-[1.02] group"
           >
-            <LogOut size={18} className="group-hover:rotate-12 transition-transform duration-200" />
+            <LogOut
+              size={18}
+              className="group-hover:rotate-12 transition-transform duration-200"
+            />
             <span>Cerrar Sesión</span>
           </button>
         </div>
@@ -164,9 +168,7 @@ function DashboardContent() {
   }, []);
 
   if (isLoading) {
-    return (
-      <div className="p-8 text-center text-slate-500">Cargando resumen...</div>
-    );
+    return <PageLoader fullPage={false} message="Cargando resumen..." />;
   }
 
   if (!stats) {

@@ -1,8 +1,16 @@
 import { useState, useEffect } from "react";
-import { Loader2, Users, Mail, Shield, Calendar, Trash2, AlertCircle } from "lucide-react";
+import {
+  Users,
+  Mail,
+  Shield,
+  Calendar,
+  Trash2,
+  AlertCircle,
+} from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import api from "@/api/axios";
+import PageLoader from "@/components/ui/PageLoader";
 
 interface User {
   id: string;
@@ -39,7 +47,11 @@ export default function UsersPage() {
   };
 
   const handleDelete = async (userId: string) => {
-    if (!confirm("¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.")) {
+    if (
+      !confirm(
+        "¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.",
+      )
+    ) {
       return;
     }
 
@@ -68,17 +80,15 @@ export default function UsersPage() {
   }
 
   if (isLoading) {
-    return (
-      <div className="p-6 flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
-      </div>
-    );
+    return <PageLoader fullPage={false} message="Cargando usuarios..." />;
   }
 
   return (
     <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-800">Gestión de Usuarios</h1>
+        <h1 className="text-2xl font-bold text-slate-800">
+          Gestión de Usuarios
+        </h1>
         <p className="text-slate-500">Administra los usuarios del sistema</p>
       </div>
 
@@ -117,23 +127,33 @@ export default function UsersPage() {
             <tbody className="divide-y divide-slate-200">
               {users.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center text-slate-400">
+                  <td
+                    colSpan={5}
+                    className="px-6 py-12 text-center text-slate-400"
+                  >
                     <Users className="w-12 h-12 mx-auto mb-3 opacity-50" />
                     <p>No hay usuarios registrados</p>
                   </td>
                 </tr>
               ) : (
                 users.map((user) => (
-                  <tr key={user.id} className="hover:bg-slate-50 transition-colors">
+                  <tr
+                    key={user.id}
+                    className="hover:bg-slate-50 transition-colors"
+                  >
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600 font-semibold">
                           {user.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-slate-800">{user.name}</p>
+                          <p className="text-sm font-medium text-slate-800">
+                            {user.name}
+                          </p>
                           {user.id === currentUser?.id && (
-                            <span className="text-xs text-emerald-600">(Tú)</span>
+                            <span className="text-xs text-emerald-600">
+                              (Tú)
+                            </span>
                           )}
                         </div>
                       </div>
@@ -150,7 +170,7 @@ export default function UsersPage() {
                           "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium",
                           user.role === "ADMIN"
                             ? "bg-purple-100 text-purple-700"
-                            : "bg-blue-100 text-blue-700"
+                            : "bg-blue-100 text-blue-700",
                         )}
                       >
                         <Shield className="w-3 h-3" />
@@ -191,8 +211,10 @@ export default function UsersPage() {
           <strong>Total de usuarios:</strong> {users.length}
         </p>
         <p className="text-sm text-slate-600 mt-1">
-          <strong>Administradores:</strong> {users.filter((u) => u.role === "ADMIN").length} |{" "}
-          <strong>Psicólogos:</strong> {users.filter((u) => u.role === "PSYCHOLOGIST").length}
+          <strong>Administradores:</strong>{" "}
+          {users.filter((u) => u.role === "ADMIN").length} |{" "}
+          <strong>Psicólogos:</strong>{" "}
+          {users.filter((u) => u.role === "PSYCHOLOGIST").length}
         </p>
       </div>
     </div>

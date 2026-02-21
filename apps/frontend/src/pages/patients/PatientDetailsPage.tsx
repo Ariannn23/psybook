@@ -3,7 +3,6 @@ import { useParams, useNavigate, Link } from "react-router-dom";
 import { getPatient } from "@/api/patients";
 import type { Patient } from "@/types/patients";
 import {
-  Loader2,
   User,
   Phone,
   Mail,
@@ -15,6 +14,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import MedicalRecordTimeline from "@/components/patients/MedicalRecordTimeline";
+import PageLoader from "@/components/ui/PageLoader";
 
 // Función para formatear fecha sin conversión de zona horaria
 function formatDateWithoutTimezone(dateString: string): string {
@@ -23,11 +23,23 @@ function formatDateWithoutTimezone(dateString: string): string {
   const month = String(dateObj.getUTCMonth() + 1).padStart(2, "0");
   const day = String(dateObj.getUTCDate()).padStart(2, "0");
 
-  return new Intl.DateTimeFormat("es-ES", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(new Date(`${year}-${month}-${day}T00:00:00`));
+  return `${day}/${month}/${year}`;
+}
+
+// Función para capitalizar la primera letra
+function capitalize(str: string): string {
+  if (!str) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+// Convert UTC date string to local Date object without hour shifts for comparison/display
+function getLocalDateFromUTC(dateString: string): Date {
+  const dateObj = new Date(dateString);
+  return new Date(
+    dateObj.getUTCFullYear(),
+    dateObj.getUTCMonth(),
+    dateObj.getUTCDate(),
+  );
 }
 
 export default function PatientDetailsPage() {
@@ -38,6 +50,9 @@ export default function PatientDetailsPage() {
   const [activeTab, setActiveTab] = useState<
     "general" | "history" | "appointments"
   >("general");
+  const [selectedAppointment, setSelectedAppointment] = useState<any | null>(
+    null,
+  );
 
   useEffect(() => {
     const fetchPatient = async () => {
@@ -56,11 +71,7 @@ export default function PatientDetailsPage() {
   }, [id, navigate]);
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center p-12">
-        <Loader2 className="w-8 h-8 animate-spin text-cyan-600" />
-      </div>
-    );
+    return <PageLoader fullPage={false} message="Cargando expediente..." />;
   }
 
   if (!patient) return null;
@@ -147,10 +158,12 @@ export default function PatientDetailsPage() {
                 Desde
               </p>
               <p className="text-slate-900 font-bold">
-                {new Date(patient.createdAt).toLocaleDateString("es-ES", {
-                  month: "long",
-                  year: "numeric",
-                })}
+                {capitalize(
+                  new Date(patient.createdAt).toLocaleDateString("es-ES", {
+                    month: "long",
+                    year: "numeric",
+                  }),
+                )}
               </p>
             </div>
           </div>
@@ -202,9 +215,12 @@ export default function PatientDetailsPage() {
                   <InfoItem label="DNI / Documento" value={patient.dni} />
                   <InfoItem
                     label="Última modificación"
-                    value={new Date(patient.updatedAt).toLocaleDateString(
-                      "es-ES",
-                      { day: "2-digit", month: "long", year: "numeric" },
+                    value={capitalize(
+                      new Date(patient.updatedAt).toLocaleDateString("es-ES", {
+                        day: "2-digit",
+                        month: "long",
+                        year: "numeric",
+                      }),
                     )}
                   />
                 </div>
@@ -223,20 +239,76 @@ export default function PatientDetailsPage() {
             </div>
 
             <div className="space-y-6">
-              <div className="bg-emerald-900 p-8 rounded-4xl text-white shadow-xl shadow-emerald-200 overflow-hidden relative group">
-                <div className="absolute -top-10 -right-10 w-40 h-40 bg-emerald-500/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
-                <h4 className="text-emerald-400 text-[10px] font-black uppercase tracking-[0.2em] mb-4">
-                  Próxima Sesión
-                </h4>
-                <p className="text-2xl font-black mb-2">Lunes, 24 Feb</p>
-                <div className="flex items-center gap-2 text-emerald-100/60 font-bold text-sm">
-                  <Clock className="w-4 h-4" />
-                  16:30 - 17:30
-                </div>
-                <button className="mt-8 w-full bg-emerald-500 hover:bg-emerald-400 text-emerald-950 font-black py-4 rounded-2xl transition-all active:scale-95 text-xs uppercase tracking-widest">
-                  Ver Detalles
-                </button>
-              </div>
+              {(() => {
+                const now = new Date();
+                now.setHours(0, 0, 0, 0); // Comparar solo fechas
+
+                const nextApt = patient.appointments
+                  ?.filter((a) => {
+                    if (a.status === "CANCELLED" || a.status === "COMPLETED")
+                      return false;
+                    const aptDate = getLocalDateFromUTC(a.date);
+                    return aptDate >= now;
+                  })
+                  .sort((a, b) => {
+                    const dateA = getLocalDateFromUTC(a.date).getTime();
+                    const dateB = getLocalDateFromUTC(b.date).getTime();
+                    if (dateA !== dateB) return dateA - dateB;
+                    return a.startTime.localeCompare(b.startTime);
+                  })[0];
+
+                if (!nextApt) {
+                  return (
+                    <div className="bg-slate-100 p-8 rounded-4xl text-slate-400 border border-slate-200 text-center">
+                      <Calendar className="w-10 h-10 mx-auto mb-4 opacity-20" />
+                      <p className="font-bold text-sm">No hay citas próximas</p>
+                      <button
+                        onClick={() => navigate("/dashboard/appointments/new")}
+                        className="mt-4 text-emerald-600 font-black text-[10px] uppercase tracking-widest hover:text-emerald-700"
+                      >
+                        Agendar Cita
+                      </button>
+                    </div>
+                  );
+                }
+
+                const displayDate = getLocalDateFromUTC(nextApt.date);
+
+                return (
+                  <div className="bg-emerald-900 p-8 rounded-4xl text-white shadow-xl shadow-emerald-200 overflow-hidden relative group">
+                    <div className="absolute -top-10 -right-10 w-40 h-40 bg-emerald-500/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-500"></div>
+                    <h4 className="text-emerald-400 text-[10px] font-black uppercase tracking-[0.2em] mb-4">
+                      Próxima Sesión
+                    </h4>
+                    <p className="text-2xl font-black mb-2 flex items-baseline gap-2">
+                      <span className="capitalize">
+                        {capitalize(
+                          displayDate.toLocaleDateString("es-ES", {
+                            weekday: "long",
+                          }),
+                        )}
+                        ,
+                      </span>
+                      <span>
+                        {displayDate.toLocaleDateString("es-ES", {
+                          day: "2-digit",
+                          month: "short",
+                        })}
+                      </span>
+                    </p>
+                    <div className="flex items-center gap-2 text-emerald-100/60 font-bold text-sm">
+                      <Clock className="w-4 h-4" />
+                      {nextApt.startTime} - {nextApt.endTime}
+                    </div>
+                    <button
+                      onClick={() => setActiveTab("appointments")}
+                      className="mt-8 w-full bg-emerald-500 hover:bg-emerald-400 text-emerald-950 font-black py-4 rounded-2xl transition-all active:scale-95 text-xs uppercase tracking-widest relative z-10"
+                    >
+                      Ver Detalles
+                    </button>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         )}
@@ -252,7 +324,7 @@ export default function PatientDetailsPage() {
             <div className="flex justify-between items-center mb-10">
               <h3 className="text-2xl font-black text-slate-900 flex items-center gap-3">
                 <div className="w-1.5 h-8 bg-emerald-500 rounded-full"></div>
-                Citas Agendadas
+                Citas Registradas
               </h3>
               <button
                 onClick={() => navigate("/dashboard/appointments/new")}
@@ -305,14 +377,17 @@ export default function PatientDetailsPage() {
                       </div>
                     </div>
 
-                    <div className="mt-6 pt-4 border-t border-slate-200/50">
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">
+                    <button
+                      onClick={() => setSelectedAppointment(apt)}
+                      className="mt-6 pt-4 border-t border-slate-200/50 w-full text-left cursor-pointer group/service"
+                    >
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1 group-hover/service:text-emerald-500 transition-colors">
                         Servicio
                       </p>
-                      <p className="text-emerald-700 font-black text-sm">
+                      <p className="text-emerald-700 font-black text-sm group-hover/service:underline">
                         {apt.service?.name || "Sesión General"}
                       </p>
-                    </div>
+                    </button>
                   </div>
                 ))}
               </div>
@@ -332,6 +407,122 @@ export default function PatientDetailsPage() {
                 </button>
               </div>
             )}
+          </div>
+        )}
+        {/* Modal de Detalles de Cita */}
+        {selectedAppointment && (
+          <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in">
+            <div
+              className="bg-white rounded-4xl shadow-2xl w-full max-w-lg overflow-hidden animate-scale-in"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-8 space-y-8">
+                <div className="flex justify-between items-start">
+                  <div className="space-y-1">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-600 text-[10px] font-black uppercase tracking-widest border border-emerald-100">
+                      Detalles de la Cita
+                    </div>
+                    <h2 className="text-3xl font-black text-slate-900">
+                      Resumen de Sesión
+                    </h2>
+                  </div>
+                  <button
+                    onClick={() => setSelectedAppointment(null)}
+                    className="p-2 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                  >
+                    <ArrowLeft className="rotate-90 w-5 h-5 text-slate-400" />
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-6">
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                      Fecha
+                    </p>
+                    <div className="flex items-center gap-2 text-slate-900 font-bold">
+                      <Calendar className="w-4 h-4 text-emerald-500" />
+                      {formatDateWithoutTimezone(selectedAppointment.date)}
+                    </div>
+                  </div>
+                  <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                      Horario
+                    </p>
+                    <div className="flex items-center gap-2 text-slate-900 font-bold">
+                      <Clock className="w-4 h-4 text-emerald-500" />
+                      {selectedAppointment.startTime} -{" "}
+                      {selectedAppointment.endTime}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="p-6 bg-emerald-50/50 rounded-3xl border border-emerald-100">
+                    <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-2">
+                      Servicio Seleccionado
+                    </p>
+                    <p className="text-xl font-black text-emerald-900">
+                      {selectedAppointment.service?.name || "Consulta General"}
+                    </p>
+                  </div>
+
+                  <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                      Estado de la Cita
+                    </p>
+                    <span
+                      className={cn(
+                        "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border-2",
+                        selectedAppointment.status === "CONFIRMED"
+                          ? "text-emerald-600 bg-emerald-50 border-emerald-100/30"
+                          : selectedAppointment.status === "COMPLETED"
+                            ? "text-blue-600 bg-blue-50 border-blue-100/30"
+                            : selectedAppointment.status === "CANCELLED"
+                              ? "text-red-600 bg-red-50 border-red-100/30"
+                              : "text-amber-600 bg-amber-50 border-amber-100/30",
+                      )}
+                    >
+                      {selectedAppointment.status === "CONFIRMED"
+                        ? "Confirmada"
+                        : selectedAppointment.status === "COMPLETED"
+                          ? "Atendida"
+                          : selectedAppointment.status === "CANCELLED"
+                            ? "Cancelada"
+                            : "Pendiente"}
+                    </span>
+                  </div>
+
+                  {selectedAppointment.reason && (
+                    <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
+                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+                        Motivo de Consulta
+                      </p>
+                      <p className="text-slate-600 font-medium leading-relaxed text-sm">
+                        {selectedAppointment.reason}
+                      </p>
+                    </div>
+                  )}
+
+                  {selectedAppointment.notes && (
+                    <div className="p-6 bg-emerald-50 rounded-3xl border border-emerald-100">
+                      <p className="text-[10px] font-black text-emerald-600 uppercase tracking-widest mb-2">
+                        Notas de Sesión
+                      </p>
+                      <p className="text-emerald-900 font-medium leading-relaxed text-sm">
+                        {selectedAppointment.notes}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  onClick={() => setSelectedAppointment(null)}
+                  className="w-full py-4 bg-slate-900 text-white font-black rounded-2xl hover:bg-slate-800 transition-all cursor-pointer uppercase tracking-widest text-xs"
+                >
+                  Cerrar Detalles
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>

@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { getAppointments, updateAppointment } from "@/api/appointments";
+import { createMedicalRecord } from "@/api/medical-records";
 import { AppointmentStatus } from "@/types/appointments";
 import type { Appointment } from "@/types/appointments";
+import SessionConfirmationModal from "@/components/appointments/SessionConfirmationModal";
 import {
-  Loader2,
   Plus,
   Calendar,
   Clock,
@@ -26,6 +27,7 @@ import { cn } from "@/lib/utils";
 import CalendarView from "@/components/appointments/CalendarView";
 import WeeklyView from "@/components/appointments/WeeklyView";
 import AppointmentForm from "@/components/appointments/AppointmentForm";
+import PageLoader from "@/components/ui/PageLoader";
 
 // Función para formatear fecha sin conversión de zona horaria
 function formatDateWithoutTimezone(dateString: string): string {
@@ -63,6 +65,7 @@ function truncateNotes(
 }
 
 export default function AppointmentsPage() {
+  const navigate = useNavigate();
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [filteredAppointments, setFilteredAppointments] = useState<
     Appointment[]
@@ -80,6 +83,9 @@ export default function AppointmentsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [updateError, setUpdateError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [sessionToConfirm, setSessionToConfirm] = useState<Appointment | null>(
+    null,
+  );
   const itemsPerPage = 10;
 
   const fetchAppointments = async () => {
@@ -127,6 +133,43 @@ export default function AppointmentsPage() {
       );
     } catch (error) {
       console.error("Failed to update status", error);
+    }
+  };
+
+  const handleFinishSession = async (notes: string, scheduleNext: boolean) => {
+    if (!sessionToConfirm) return;
+
+    try {
+      // 1. Update appointment status to COMPLETED and save notes
+      const updatedApt = await updateAppointment(sessionToConfirm.id, {
+        status: AppointmentStatus.COMPLETED,
+        notes: notes.trim() || undefined,
+      });
+
+      // 2. Create medical record if notes provided
+      if (notes.trim()) {
+        await createMedicalRecord({
+          patientId: sessionToConfirm.patientId,
+          content: notes,
+        });
+      }
+
+      // 3. Update local state
+      setAppointments((prev) =>
+        prev.map((apt) => (apt.id === sessionToConfirm.id ? updatedApt : apt)),
+      );
+
+      // 4. Close modal
+      setSessionToConfirm(null);
+
+      // 5. Navigate to new appointment if requested
+      if (scheduleNext) {
+        navigate(
+          `/dashboard/appointments/new?patientId=${sessionToConfirm.patientId}`,
+        );
+      }
+    } catch (error) {
+      console.error("Failed to finish session", error);
     }
   };
 
@@ -274,7 +317,7 @@ export default function AppointmentsPage() {
                   <option value="all">Todos los estados</option>
                   <option value="PENDING">Pendientes</option>
                   <option value="CONFIRMED">Confirmadas</option>
-                  <option value="COMPLETED">Completadas</option>
+                  <option value="COMPLETED">Atendidas</option>
                   <option value="CANCELLED">Canceladas</option>
                 </select>
                 <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -286,12 +329,7 @@ export default function AppointmentsPage() {
         )}
 
         {isLoading ? (
-          <div className="p-20 flex flex-col items-center gap-4">
-            <Loader2 className="w-10 h-10 animate-spin text-emerald-500" />
-            <p className="text-slate-400 font-black uppercase tracking-widest text-xs">
-              Cargando agenda...
-            </p>
-          </div>
+          <PageLoader fullPage={false} message="Cargando agenda..." />
         ) : viewMode === "calendar" ? (
           <div className="p-6">
             <CalendarView appointments={filteredAppointments} />
@@ -423,7 +461,7 @@ export default function AppointmentsPage() {
                                         ? "Confirmada"
                                         : apt.status ===
                                             AppointmentStatus.COMPLETED
-                                          ? "Completada"
+                                          ? "Atendida"
                                           : apt.status ===
                                               AppointmentStatus.CANCELLED
                                             ? "Cancelada"
@@ -448,12 +486,9 @@ export default function AppointmentsPage() {
                                         <>
                                           <button
                                             onClick={() =>
-                                              handleStatusChange(
-                                                apt.id,
-                                                AppointmentStatus.COMPLETED,
-                                              )
+                                              setSessionToConfirm(apt)
                                             }
-                                            title="Marcar como Atendido"
+                                            title="Finalizar y Atender"
                                             className="p-2.5 bg-white border border-slate-100 shadow-sm rounded-xl text-blue-500 hover:text-blue-600 hover:border-blue-100 hover:shadow-blue-100 transition-all cursor-pointer"
                                             type="button"
                                           >
@@ -694,7 +729,7 @@ export default function AppointmentsPage() {
                           {viewingAppointment.status === "CONFIRMED"
                             ? "CONFIRMADA"
                             : viewingAppointment.status === "COMPLETED"
-                              ? "COMPLETADA"
+                              ? "ATENDIDA"
                               : viewingAppointment.status === "CANCELLED"
                                 ? "CANCELADA"
                                 : "PENDIENTE"}
@@ -751,6 +786,14 @@ export default function AppointmentsPage() {
             />
           </div>
         </div>
+      )}
+      {/* Session Confirmation Modal */}
+      {sessionToConfirm && (
+        <SessionConfirmationModal
+          appointment={sessionToConfirm}
+          onConfirm={handleFinishSession}
+          onCancel={() => setSessionToConfirm(null)}
+        />
       )}
     </div>
   );

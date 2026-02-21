@@ -2,17 +2,24 @@ import { cn } from "@/lib/utils";
 
 interface PageLoaderProps {
   className?: string;
+  fullPage?: boolean;
+  message?: string;
 }
 
-export default function PageLoader({ className }: PageLoaderProps) {
+export default function PageLoader({
+  className,
+  fullPage = true,
+  message = "Iniciando PsyBook",
+}: PageLoaderProps) {
   return (
     <div
       className={cn(
-        "fixed inset-0 z-[100] flex flex-col items-center justify-center bg-white animate-in fade-in duration-500",
+        fullPage ? "fixed inset-0 z-[100]" : "w-full min-h-[400px] flex-1",
+        "flex flex-col items-center justify-center bg-white animate-in fade-in duration-500",
         className,
       )}
     >
-      <div className="relative">
+      <div className="relative scale-90 md:scale-100">
         {/* Animated background rings */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-emerald-50 rounded-full animate-ping opacity-20"></div>
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 bg-emerald-50 rounded-full animate-pulse opacity-10"></div>
@@ -34,7 +41,7 @@ export default function PageLoader({ className }: PageLoaderProps) {
 
       <div className="mt-6">
         <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-400 animate-pulse">
-          Iniciando PsyBook
+          {message}
         </p>
       </div>
     </div>

@@ -1,5 +1,11 @@
 import prisma from "../../config/db";
-import { startOfMonth, endOfMonth, subMonths, eachDayOfInterval, format } from "date-fns";
+import {
+  startOfMonth,
+  endOfMonth,
+  subMonths,
+  eachDayOfInterval,
+  format,
+} from "date-fns";
 
 export async function getDashboardStats(userId: string) {
   const now = new Date();
@@ -18,42 +24,53 @@ export async function getDashboardStats(userId: string) {
     appointmentsByStatus,
     appointmentsByDay,
   ] = await prisma.$transaction([
-    // Total patients
-    prisma.patient.count(),
-    // Appointments this month
+    // Total patients seen by this doctor
+    prisma.patient.count({
+      where: {
+        appointments: {
+          some: { userId },
+        },
+      },
+    }),
+    // Appointments this month for this doctor
     prisma.appointment.count({
       where: {
+        userId,
         date: {
           gte: firstDayOfMonth,
           lte: lastDayOfMonth,
         },
       },
     }),
-    // Appointments last month (for comparison)
+    // Appointments last month (for comparison) for this doctor
     prisma.appointment.count({
       where: {
+        userId,
         date: {
           gte: firstDayLastMonth,
           lte: lastDayLastMonth,
         },
       },
     }),
-    // Completed appointments (total)
+    // Completed appointments (total) for this doctor
     prisma.appointment.count({
       where: {
+        userId,
         status: "COMPLETED",
       },
     }),
-    // Pending appointments (future)
+    // Pending appointments (future) for this doctor
     prisma.appointment.count({
       where: {
+        userId,
         status: { in: ["PENDING", "CONFIRMED"] },
         date: { gte: now },
       },
     }),
-    // Next 5 appointments
+    // Next 5 appointments for this doctor
     prisma.appointment.findMany({
       where: {
+        userId,
         date: { gte: now },
         status: { not: "CANCELLED" },
       },
@@ -70,10 +87,11 @@ export async function getDashboardStats(userId: string) {
         },
       },
     }),
-    // Appointments by status (for pie chart)
+    // Appointments by status (for pie chart) for this doctor
     prisma.appointment.groupBy({
       by: ["status"],
       where: {
+        userId,
         date: {
           gte: firstDayOfMonth,
           lte: lastDayOfMonth,
@@ -84,30 +102,40 @@ export async function getDashboardStats(userId: string) {
         status: "asc",
       },
     }),
-    // Appointments by day of week (for bar chart)
+    // Appointments by day of week (for bar chart) for this doctor
     prisma.$queryRaw<Array<{ day: number; count: bigint }>>`
-      SELECT EXTRACT(DOW FROM date)::int as day, COUNT(*)::bigint as count
+      SELECT EXTRACT(DOW FROM "date")::int as day, COUNT(*)::bigint as count
       FROM appointments
-      WHERE date >= ${firstDayOfMonth}::date
-        AND date <= ${lastDayOfMonth}::date
-      GROUP BY EXTRACT(DOW FROM date)
+      WHERE "userId" = ${userId}
+        AND "date" >= ${firstDayOfMonth}::date
+        AND "date" <= ${lastDayOfMonth}::date
+      GROUP BY EXTRACT(DOW FROM "date")
       ORDER BY day
     `,
   ]);
 
   // Calculate trend
-  const trend = lastMonthAppointments > 0
-    ? ((monthAppointments - lastMonthAppointments) / lastMonthAppointments * 100).toFixed(1)
-    : "0";
+  const trend =
+    lastMonthAppointments > 0
+      ? (
+          ((monthAppointments - lastMonthAppointments) /
+            lastMonthAppointments) *
+          100
+        ).toFixed(1)
+      : "0";
 
   // Format appointments by status
   const statusData = appointmentsByStatus.map((item) => ({
     status: item.status,
-    count: typeof item._count === 'number' ? item._count : 0,
+    // In Prisma groupBy, _count is usually an object like { _all: number }
+    count:
+      typeof item._count === "number"
+        ? item._count
+        : (item as any)._count?._all || (item as any)._count?.status || 0,
   }));
 
   // Format appointments by day
-  const dayData = appointmentsByDay.map((item) => ({
+  const dayData = (appointmentsByDay || []).map((item) => ({
     day: Number(item.day),
     count: Number(item.count),
   }));

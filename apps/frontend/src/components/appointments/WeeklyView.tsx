@@ -164,7 +164,7 @@ export default function WeeklyView({ appointments }: WeeklyViewProps) {
                             "text-[10px] p-1.5 rounded border mb-1 cursor-pointer hover:shadow-sm transition-all",
                             getStatusColor(apt.status),
                           )}
-                          title={`${apt.startTime} - ${apt.patient?.name || "Paciente"}`}
+                          title={`${apt.startTime} - ${apt.patient?.name || "Paciente"} (${apt.status === "COMPLETED" ? "Atendida" : apt.status})`}
                         >
                           <div className="flex items-center gap-1 font-semibold mb-0.5">
                             <Clock className="w-2.5 h-2.5" />

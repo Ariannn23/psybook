@@ -3,6 +3,8 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import LoginPage from "@/pages/LoginPage";
 import RegisterPage from "@/pages/RegisterPage";
+import LandingPage from "@/pages/LandingPage";
+import PublicBookingPage from "@/pages/PublicBookingPage";
 import DashboardPage from "@/pages/DashboardPage";
 import PatientsPage from "@/pages/patients/PatientsPage";
 import AddPatientPage from "@/pages/patients/AddPatientPage";
@@ -35,6 +37,8 @@ export default function AppRoutes() {
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/reservar" element={<PublicBookingPage />} />
 
       <Route
         path="/dashboard"
@@ -56,7 +60,7 @@ export default function AppRoutes() {
         <Route path="users" element={<UsersPage />} />
       </Route>
 
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

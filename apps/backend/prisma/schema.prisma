@@ -38,6 +38,7 @@ model User {
   schedules      Schedule[]
   appointments   Appointment[]
   medicalRecords MedicalRecord[]
+  notifications  Notification[]
 
   @@map("users")
 }
@@ -128,6 +129,19 @@ model MedicalRecord {
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("medical_records")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String   // Recipient
+  message   String
+  type      String   @default("info") // info, success, warning, error
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notifications")
 }
 
 enum Role {

@@ -6,6 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import { getProfile, updateProfile } from "@/api/users";
 import { Loader2, Save, User, Mail, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import PageLoader from "@/components/ui/PageLoader";
 
 const profileSchema = z
   .object({
@@ -41,7 +42,7 @@ const profileSchema = z
   )
   .refine(
     (data) => {
-      if (data.newPassword !== data.confirmPassword) {
+      if (data.newPassword && data.newPassword !== data.confirmPassword) {
         return false;
       }
       return true;
@@ -148,11 +149,7 @@ export default function ProfilePage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
-      </div>
-    );
+    return <PageLoader fullPage={false} message="Cargando perfil..." />;
   }
 
   return (

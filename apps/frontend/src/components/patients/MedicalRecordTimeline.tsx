@@ -22,6 +22,7 @@ import {
 import type { MedicalRecord } from "@/types/medical-records";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
+import PageLoader from "@/components/ui/PageLoader";
 
 const noteSchema = z.object({
   content: z.string().min(1, "Note cannot be empty"),
@@ -229,12 +230,10 @@ export default function MedicalRecordTimeline({
         </div>
 
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center p-20 gap-4 bg-white rounded-4xl border border-slate-100">
-            <Loader2 className="w-10 h-10 animate-spin text-emerald-500" />
-            <p className="font-bold text-slate-400 animate-pulse">
-              Recuperando historial clínico...
-            </p>
-          </div>
+          <PageLoader
+            fullPage={false}
+            message="Recuperando historial clínico..."
+          />
         ) : records.length === 0 ? (
           <div className="text-center py-24 bg-slate-50/50 rounded-4xl border border-dashed border-slate-200">
             <div className="p-6 bg-white rounded-3xl border border-slate-100 shadow-sm w-20 h-20 flex items-center justify-center mx-auto mb-6 transform -rotate-12">

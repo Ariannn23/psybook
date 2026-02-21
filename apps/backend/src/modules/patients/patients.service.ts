@@ -9,7 +9,15 @@ export async function createPatient(data: CreatePatientInput) {
 export async function getAllPatients() {
   return prisma.patient.findMany({
     orderBy: { createdAt: "desc" },
-    include: { _count: { select: { appointments: true } } },
+    include: {
+      _count: { select: { appointments: true } },
+      appointments: {
+        where: { status: "COMPLETED" },
+        orderBy: [{ date: "desc" }, { startTime: "desc" }],
+        take: 1,
+        include: { service: true },
+      },
+    },
   });
 }
 

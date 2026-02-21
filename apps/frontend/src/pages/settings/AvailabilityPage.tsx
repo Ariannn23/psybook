@@ -19,6 +19,7 @@ import type { Schedule } from "@/types/schedules";
 import { cn } from "@/lib/utils";
 import { Pencil, X, List, LayoutGrid } from "lucide-react";
 import WeeklyScheduleView from "@/components/schedules/WeeklyScheduleView";
+import PageLoader from "@/components/ui/PageLoader";
 
 const DAYS = [
   "Domingo",
@@ -356,9 +357,7 @@ export default function AvailabilityPage() {
         {/* List Section */}
         <div className="lg:col-span-3">
           {isLoading ? (
-            <div className="flex justify-center p-12">
-              <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
-            </div>
+            <PageLoader fullPage={false} message="Cargando disponibilidad..." />
           ) : viewMode === "weekly" ? (
             <WeeklyScheduleView schedules={schedules} />
           ) : (

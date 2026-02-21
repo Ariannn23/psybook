@@ -1,4 +1,11 @@
-import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from "recharts";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  Legend,
+} from "recharts";
 
 interface StatusChartProps {
   data: Array<{
@@ -17,7 +24,7 @@ const COLORS = {
 const STATUS_LABELS: Record<string, string> = {
   PENDING: "Pendiente",
   CONFIRMED: "Confirmada",
-  COMPLETED: "Completada",
+  COMPLETED: "Atendida",
   CANCELLED: "Cancelada",
 };
 
@@ -40,7 +47,9 @@ export default function StatusChart({ data }: StatusChartProps) {
             cx="50%"
             cy="50%"
             labelLine={false}
-            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+            label={({ name, percent }) =>
+              `${name}: ${(percent * 100).toFixed(0)}%`
+            }
             outerRadius={100}
             fill="#8884d8"
             dataKey="value"
@@ -61,7 +70,9 @@ export default function StatusChart({ data }: StatusChartProps) {
             verticalAlign="bottom"
             height={36}
             formatter={(value) => (
-              <span style={{ color: "#475569", fontSize: "12px" }}>{value}</span>
+              <span style={{ color: "#475569", fontSize: "12px" }}>
+                {value}
+              </span>
             )}
           />
         </PieChart>

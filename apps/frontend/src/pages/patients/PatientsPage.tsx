@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { getPatients, deletePatient } from "@/api/patients";
 import type { Patient } from "@/types/patients";
-import { Loader2, Plus, Search, Trash2, Eye, Pencil } from "lucide-react";
+import { Plus, Search, Trash2, Eye, Pencil } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import PageLoader from "@/components/ui/PageLoader";
 
 export default function PatientsPage() {
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -99,13 +100,11 @@ export default function PatientsPage() {
             <tbody className="divide-y divide-emerald-50/50">
               {isLoading ? (
                 <tr>
-                  <td colSpan={4} className="p-12 text-center">
-                    <div className="flex flex-col items-center gap-3">
-                      <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
-                      <p className="text-slate-400 font-medium">
-                        Cargando pacientes...
-                      </p>
-                    </div>
+                  <td colSpan={4}>
+                    <PageLoader
+                      fullPage={false}
+                      message="Cargando pacientes..."
+                    />
                   </td>
                 </tr>
               ) : filteredPatients.length === 0 ? (
@@ -177,9 +176,35 @@ export default function PatientsPage() {
                         </div>
                       </td>
                       <td className="p-6">
-                        <span className="inline-flex items-center px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold border border-slate-200">
-                          Próximamente
-                        </span>
+                        {patient.appointments &&
+                        patient.appointments.length > 0 ? (
+                          <div className="flex flex-col">
+                            <span className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-100">
+                              {(() => {
+                                const dateObj = new Date(
+                                  patient.appointments[0].date,
+                                );
+                                const d = dateObj.getUTCDate();
+                                const m = dateObj.getUTCMonth();
+                                const y = dateObj.getUTCFullYear();
+                                const displayDate = new Date(y, m, d);
+                                return displayDate.toLocaleDateString("es-ES", {
+                                  day: "2-digit",
+                                  month: "short",
+                                  year: "numeric",
+                                });
+                              })()}
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-medium mt-1 ml-1 capitalize">
+                              {patient.appointments[0].service?.name ||
+                                "Sesión"}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="inline-flex items-center px-3 py-1 rounded-full bg-slate-100 text-slate-400 text-xs font-medium border border-slate-200">
+                            Sin sesiones
+                          </span>
+                        )}
                       </td>
                       <td className="p-6 text-right">
                         <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-x-4 group-hover:translate-x-0">

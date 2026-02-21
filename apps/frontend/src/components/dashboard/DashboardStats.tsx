@@ -16,7 +16,8 @@ interface StatCardProps {
 
 function StatCard({ title, value, icon: Icon, trend, color }: StatCardProps) {
   const colorStyles = {
-    emerald: "bg-gradient-to-br from-emerald-50 to-emerald-100 text-emerald-600",
+    emerald:
+      "bg-gradient-to-br from-emerald-50 to-emerald-100 text-emerald-600",
     blue: "bg-gradient-to-br from-blue-50 to-blue-100 text-blue-600",
     indigo: "bg-gradient-to-br from-indigo-50 to-indigo-100 text-indigo-600",
     amber: "bg-gradient-to-br from-amber-50 to-amber-100 text-amber-600",
@@ -39,7 +40,9 @@ function StatCard({ title, value, icon: Icon, trend, color }: StatCardProps) {
             </div>
           )}
         </div>
-        <div className={`p-4 rounded-xl ${colorStyles[color]} group-hover:scale-110 transition-transform duration-300 shadow-sm`}>
+        <div
+          className={`p-4 rounded-xl ${colorStyles[color]} group-hover:scale-110 transition-transform duration-300 shadow-sm`}
+        >
           <Icon className="w-6 h-6" />
         </div>
       </div>
@@ -55,6 +58,7 @@ export default function DashboardStats({
     appointments: number;
     completed: number;
     pending: number;
+    trend?: number;
   };
 }) {
   return (
@@ -77,7 +81,7 @@ export default function DashboardStats({
         color="emerald"
       />
       <StatCard
-        title="Citas Completadas"
+        title="Sesiones Atendidas"
         value={stats.completed}
         icon={CheckCircle}
         color="indigo"
