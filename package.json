@@ -9,6 +9,8 @@
   "scripts": {
     "dev:backend": "npm --workspace=apps/backend run dev",
     "build:backend": "npm --workspace=apps/backend run build",
+    "build": "npm run build:backend",
+    "start": "npm --workspace=apps/backend run start",
     "lint": "npm --workspaces run lint --if-present"
   },
   "engines": {
