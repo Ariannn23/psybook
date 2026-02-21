@@ -77,21 +77,37 @@ export default function LandingPage() {
               Preguntas
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-emerald-500/60 rounded-full transition-all duration-300 group-hover:w-full" />
             </a>
-            <Link
-              to="/reservar"
-              className="px-6 py-2.5 bg-slate-900 text-white rounded-full text-sm font-bold hover:bg-emerald-600 hover:shadow-xl hover:shadow-emerald-200 transition-all active:scale-95"
-            >
-              Reservar Cita
-            </Link>
+            <div className="flex items-center gap-4 pl-4 border-l border-slate-100">
+              <Link
+                to="/login"
+                className="text-sm font-bold text-slate-600 hover:text-emerald-600 transition-colors"
+              >
+                Acceder
+              </Link>
+              <Link
+                to="/reservar"
+                className="px-6 py-2.5 bg-slate-900 text-white rounded-full text-sm font-bold hover:bg-emerald-600 hover:shadow-xl hover:shadow-emerald-200 transition-all active:scale-95"
+              >
+                Reservar Cita
+              </Link>
+            </div>
           </div>
 
-          <button
-            type="button"
-            className="md:hidden p-2 text-slate-600"
-            title="Menú"
-          >
-            <Menu className="w-6 h-6" />
-          </button>
+          <div className="flex items-center gap-4 md:hidden">
+            <Link
+              to="/login"
+              className="text-sm font-bold text-slate-600 hover:text-emerald-600"
+            >
+              Acceder
+            </Link>
+            <button
+              type="button"
+              className="p-2 text-slate-600 hover:bg-slate-50 rounded-xl"
+              title="Menú"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+          </div>
         </div>
       </nav>
 
@@ -556,27 +572,5 @@ export default function LandingPage() {
         <div className="absolute -bottom-20 -right-20 w-80 h-80 bg-emerald-50 rounded-full blur-3xl -z-10 opacity-60" />
       </footer>
     </div>
-  );
-}
-
-function UsersIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-      <circle cx="9" cy="7" r="4" />
-      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-    </svg>
   );
 }

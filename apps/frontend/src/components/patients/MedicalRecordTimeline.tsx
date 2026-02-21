@@ -35,6 +35,12 @@ interface MedicalRecordTimelineProps {
   patientId: string;
 }
 
+// Función para capitalizar la primera letra
+function capitalize(str: string): string {
+  if (!str) return str;
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
 export default function MedicalRecordTimeline({
   patientId,
 }: MedicalRecordTimelineProps) {
@@ -244,9 +250,9 @@ export default function MedicalRecordTimeline({
             </p>
           </div>
         ) : (
-          <div className="relative ml-6 space-y-10">
+          <div className="relative ml-10 space-y-12">
             {/* Main Vertical Line */}
-            <div className="absolute left-[-2px] top-4 bottom-4 w-1 bg-linear-to-b from-emerald-500 via-slate-100 to-transparent rounded-full" />
+            <div className="absolute left-0 top-4 bottom-4 w-1 bg-linear-to-b from-emerald-500 via-slate-100 to-transparent rounded-full" />
 
             {records.map((record, index) => (
               <div
@@ -255,9 +261,9 @@ export default function MedicalRecordTimeline({
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 {/* Dot */}
-                <div className="absolute -left-[32px] top-6 h-6 w-6 rounded-full border-4 border-white bg-emerald-500 shadow-lg shadow-emerald-200 group-hover:scale-125 transition-transform duration-300 z-10" />
+                <div className="absolute left-[-10px] top-6 h-6 w-6 rounded-full border-4 border-white bg-emerald-500 shadow-lg shadow-emerald-200 group-hover:scale-125 transition-transform duration-300 z-10" />
 
-                <div className="bg-white rounded-4xl p-8 border border-slate-100 shadow-xl shadow-slate-200/40 hover:shadow-emerald-100/40 hover:border-emerald-100 transition-all duration-500">
+                <div className="ml-10 bg-white rounded-4xl p-8 border border-slate-100 shadow-xl shadow-slate-200/40 hover:shadow-emerald-100/40 hover:border-emerald-100 transition-all duration-500">
                   <div className="flex items-start justify-between mb-6">
                     <div className="flex flex-wrap items-center gap-4 text-xs">
                       <div className="flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-full border border-slate-100 font-bold text-slate-600">
@@ -266,13 +272,15 @@ export default function MedicalRecordTimeline({
                       </div>
                       <div className="flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-full border border-slate-100 font-bold text-slate-500">
                         <Clock className="w-3.5 h-3.5 text-emerald-500" />
-                        {new Date(record.createdAt).toLocaleString("es-ES", {
-                          day: "2-digit",
-                          month: "long",
-                          year: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
+                        {capitalize(
+                          new Date(record.createdAt).toLocaleString("es-ES", {
+                            day: "2-digit",
+                            month: "long",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          }),
+                        )}
                       </div>
                     </div>
                     {user?.id === record.userId && (

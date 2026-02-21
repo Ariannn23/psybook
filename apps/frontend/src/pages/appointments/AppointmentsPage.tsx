@@ -357,8 +357,8 @@ export default function AppointmentsPage() {
             {viewMode === "list" ? (
               <div className="space-y-4">
                 <div className="bg-white rounded-xl shadow-sm border border-emerald-100/60 overflow-hidden">
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm text-slate-600 border-collapse">
+                  <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-slate-200">
+                    <table className="w-full text-left text-sm text-slate-600 border-collapse min-w-[800px]">
                       <thead className="bg-emerald-50/40">
                         <tr className="border-b border-emerald-100/30 uppercase tracking-widest text-[10px] text-slate-400 font-bold">
                           <th className="p-6">Fecha y Horario</th>

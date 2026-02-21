@@ -78,21 +78,21 @@ export default function PatientDetailsPage() {
 
   return (
     <div className="p-6 space-y-8 animate-fade-in max-w-6xl mx-auto">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <button
           onClick={() => navigate("/dashboard/patients")}
           className="group flex items-center gap-2 text-slate-400 hover:text-emerald-600 transition-all font-bold text-sm uppercase tracking-widest"
         >
-          <div className="p-2 rounded-xl group-hover:bg-emerald-50 transition-colors">
+          <div className="p-2 rounded-xl group-hover:bg-emerald-50 transition-colors shrink-0">
             <ArrowLeft className="w-4 h-4" />
           </div>
-          Volver a Pacientes
+          <span className="truncate">Volver a Pacientes</span>
         </button>
 
-        <div className="flex gap-3">
+        <div className="flex gap-3 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
           <Link
             to={`/dashboard/patients/edit/${patient.id}`}
-            className="p-3 bg-white border border-slate-200 rounded-2xl text-slate-400 hover:text-emerald-600 hover:border-emerald-100 hover:shadow-lg transition-all shadow-sm flex items-center justify-center cursor-pointer"
+            className="p-3 bg-white border border-slate-200 rounded-2xl text-slate-400 hover:text-emerald-600 hover:border-emerald-100 hover:shadow-lg transition-all shadow-sm flex items-center justify-center cursor-pointer shrink-0"
             title="Editar Paciente"
           >
             <Pencil className="w-4 h-4" />
