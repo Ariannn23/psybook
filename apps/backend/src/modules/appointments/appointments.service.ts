@@ -19,14 +19,14 @@ const appointmentInclude = {
 
 // Helper function to convert YYYY-MM-DD string to Date at midnight UTC
 function parseDateString(dateString: string): Date {
-  const [year, month, day] = dateString.split('-').map(Number);
+  const [year, month, day] = dateString.split("-").map(Number);
   // Create a date at midnight UTC for the given year, month, day
   return new Date(Date.UTC(year, month - 1, day));
 }
 
 export async function createAppointment(data: CreateAppointmentInput) {
   const appointmentDate = parseDateString(data.date);
-  
+
   // Check for scheduling conflict
   const conflict = await prisma.appointment.findFirst({
     where: {
@@ -46,23 +46,19 @@ export async function createAppointment(data: CreateAppointmentInput) {
     include: appointmentInclude,
   });
 
-  // Send confirmation email (non-blocking)
-  try {
-    const formattedDate = format(appointment.date, "PPP", { locale: es });
-    await sendAppointmentConfirmation({
-      patientEmail: appointment.patient.email,
-      patientName: appointment.patient.name,
-      serviceName: appointment.service.name,
-      date: formattedDate,
-      startTime: appointment.startTime,
-      endTime: appointment.endTime,
-      doctorName: appointment.user.name,
-      notes: appointment.notes || undefined,
-    });
-  } catch (error) {
+  // Send confirmation email (non-blocking in background)
+  sendAppointmentConfirmation({
+    patientEmail: appointment.patient.email,
+    patientName: appointment.patient.name,
+    serviceName: appointment.service.name,
+    date: format(appointment.date, "PPP", { locale: es }),
+    startTime: appointment.startTime,
+    endTime: appointment.endTime,
+    doctorName: appointment.user.name,
+    notes: appointment.notes || undefined,
+  }).catch((error) => {
     console.error("Failed to send appointment confirmation email:", error);
-    // Don't throw error - let appointment creation succeed even if email fails
-  }
+  });
 
   return appointment;
 }
@@ -123,21 +119,18 @@ export async function deleteAppointment(id: string) {
     include: appointmentInclude,
   });
 
-  // Send cancellation email (non-blocking)
-  try {
-    const formattedDate = format(updated.date, "PPP", { locale: es });
-    await sendAppointmentCancellation({
-      patientEmail: updated.patient.email,
-      patientName: updated.patient.name,
-      serviceName: updated.service.name,
-      date: formattedDate,
-      startTime: updated.startTime,
-      endTime: updated.endTime,
-      doctorName: updated.user.name,
-    });
-  } catch (error) {
+  // Send cancellation email (non-blocking in background)
+  sendAppointmentCancellation({
+    patientEmail: updated.patient.email,
+    patientName: updated.patient.name,
+    serviceName: updated.service.name,
+    date: format(updated.date, "PPP", { locale: es }),
+    startTime: updated.startTime,
+    endTime: updated.endTime,
+    doctorName: updated.user.name,
+  }).catch((error) => {
     console.error("Failed to send appointment cancellation email:", error);
-  }
+  });
 
   return updated;
 }

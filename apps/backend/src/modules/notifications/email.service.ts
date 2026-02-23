@@ -12,16 +12,25 @@ console.log("📧 Email Configuration:", {
 // Create transporter
 const isGmail = env.MAIL_HOST.includes("gmail.com");
 
-const transporter = nodemailer.createTransport({
-  ...(isGmail
-    ? { service: "gmail" }
-    : { host: env.MAIL_HOST, port: env.MAIL_PORT }),
-  secure: isGmail ? true : env.MAIL_PORT === 465,
-  auth: {
-    user: env.MAIL_USER,
-    pass: env.MAIL_PASS,
-  },
-});
+const transporter = nodemailer.createTransport(
+  isGmail
+    ? {
+        service: "gmail",
+        auth: {
+          user: env.MAIL_USER,
+          pass: env.MAIL_PASS,
+        },
+      }
+    : {
+        host: env.MAIL_HOST,
+        port: env.MAIL_PORT,
+        secure: env.MAIL_PORT === 465,
+        auth: {
+          user: env.MAIL_USER,
+          pass: env.MAIL_PASS,
+        },
+      },
+);
 
 // Verify connection
 transporter
