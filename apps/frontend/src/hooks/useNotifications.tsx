@@ -85,13 +85,11 @@ export function useNotifications() {
   }, []);
 
   const markAllAsRead = useCallback(async () => {
-    // Backend doesn't have markAllAsRead yet, we could implement it
-    // For now, we'll just optimistically update frontend if needed,
-    // but better to just trigger markAsRead for each or add backend route.
     try {
+      // Backend call
+      await api.patch("/notifications/read-all");
       // Optimistic update
       setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-      // Note: Backend implementation for "Mark all" can be added in public.controller or a dedicated notifications controller
     } catch (error) {
       console.error("Error marking all as read", error);
     }

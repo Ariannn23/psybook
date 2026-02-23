@@ -37,6 +37,11 @@ router.get("/", authMiddleware, notificationsController.getAll);
  *         description: Notification updated
  */
 router.patch("/:id/read", authMiddleware, notificationsController.markAsRead);
+router.patch(
+  "/read-all",
+  authMiddleware,
+  notificationsController.markAllAsRead,
+);
 
 /**
  * @swagger

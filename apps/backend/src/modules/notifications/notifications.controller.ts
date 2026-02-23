@@ -83,3 +83,28 @@ export async function remove(req: Request, res: Response) {
       .json({ success: false, message: "Error al eliminar notificación" });
   }
 }
+// Mark all notifications as read for current user
+export async function markAllAsRead(req: Request, res: Response) {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ success: false, message: "No autorizado" });
+    }
+
+    await prisma.notification.updateMany({
+      where: { userId, isRead: false },
+      data: { isRead: true },
+    });
+
+    return res.json({
+      success: true,
+      message: "Todas las notificaciones marcadas como leídas",
+    });
+  } catch (error) {
+    console.error("Error marking all notifications as read:", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Error al actualizar notificaciones" });
+  }
+}
