@@ -3,6 +3,28 @@ import { createError } from "../../middlewares/error.middleware";
 import { CreatePatientInput, UpdatePatientInput } from "./patients.schema";
 
 export async function createPatient(data: CreatePatientInput) {
+  // Check if patient with same DNI already exists for this doctor
+  const existing = await prisma.patient.findFirst({
+    where: {
+      userId: data.userId,
+      dni: data.dni,
+    },
+  });
+
+  if (existing) {
+    // Update existing patient data
+    return prisma.patient.update({
+      where: { id: existing.id },
+      data: {
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        notes: data.notes,
+      },
+    });
+  }
+
+  // Create new patient if doesn't exist
   return prisma.patient.create({ data });
 }
 

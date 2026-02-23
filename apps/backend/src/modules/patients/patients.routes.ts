@@ -32,7 +32,7 @@ const router = Router();
  *       201:
  *         description: Patient created
  */
-router.post("/", patientsController.create);
+router.post("/", authMiddleware, patientsController.create);
 
 /**
  * @swagger
