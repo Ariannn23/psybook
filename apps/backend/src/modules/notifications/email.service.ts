@@ -10,40 +10,46 @@ console.log("📧 Email Configuration:", {
 });
 
 // Create transporter
+// For Gmail, we can use 'service: gmail' or manual config.
+// Manual config with port 587/465 is often more reliable on some cloud providers.
 const isGmail = env.MAIL_HOST.includes("gmail.com");
 
-const transporter = nodemailer.createTransport(
-  isGmail
-    ? {
-        service: "gmail",
-        auth: {
-          user: env.MAIL_USER,
-          pass: env.MAIL_PASS,
-        },
-      }
-    : {
-        host: env.MAIL_HOST,
-        port: env.MAIL_PORT,
-        secure: env.MAIL_PORT === 465,
-        auth: {
-          user: env.MAIL_USER,
-          pass: env.MAIL_PASS,
-        },
-      },
+console.log(
+  `📡 Preparing email transporter for ${isGmail ? "Gmail" : env.MAIL_HOST}...`,
 );
 
+const transporter = nodemailer.createTransport({
+  host: env.MAIL_HOST,
+  port: env.MAIL_PORT,
+  secure: env.MAIL_PORT === 465, // true for 465, false for other ports
+  auth: {
+    user: env.MAIL_USER,
+    pass: env.MAIL_PASS,
+  },
+  tls: {
+    // Do not fail on invalid certs (common issue in some environments)
+    rejectUnauthorized: false,
+  },
+  // Enable debug logs to help identify why emails aren't reaching their destination
+  debug: true,
+  logger: true,
+});
+
 // Verify connection
-transporter
-  .verify()
-  .then(() => {
-    console.log("✅ Email service ready - SMTP connection successful");
-  })
-  .catch((error) => {
-    console.error("❌ Email service ERROR:", error.message);
+transporter.verify((error, success) => {
+  if (error) {
+    console.error("❌ Email service ERROR details:", {
+      message: error.message,
+      code: (error as any).code,
+      command: (error as any).command,
+    });
     console.error(
-      "ℹ️ Configure MAIL_HOST, MAIL_PORT, MAIL_USER, MAIL_PASS in .env",
+      "ℹ️ Check your MAIL_USER and MAIL_PASS (App Password). Ensure MAIL_PORT is correct (587 or 465).",
     );
-  });
+  } else {
+    console.log("✅ Email service ready - SMTP connection successful");
+  }
+});
 
 interface SendEmailOptions {
   to: string;
