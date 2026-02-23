@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export const createPatientSchema = z.object({
+  userId: z.string().uuid(),
   name: z.string().min(2),
   dni: z.string().min(3),
   email: z.string().email(),

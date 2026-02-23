@@ -39,23 +39,23 @@ model User {
   appointments   Appointment[]
   medicalRecords MedicalRecord[]
   notifications  Notification[]
+  patients       Patient[]
 
   @@map("users")
 }
 
 model Patient {
   id        String   @id @default(uuid())
+  userId    String   @default("") // Temporarily default for existing records, will update with migration
   name      String
-  dni       String   @default("") // Temporarily default to empty string for existing records
+  dni       String   @default("")
   email     String
   phone     String
   notes     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // FUTURE: organizationId String
-  // FUTURE: organization   Organization @relation(fields: [organizationId], references: [id])
-
+  user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   appointments   Appointment[]
   medicalRecords MedicalRecord[]
 

@@ -5,6 +5,7 @@ import {
   Loader2,
   DollarSign,
   Clock,
+  Stethoscope,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getServices } from "@/api/services";
@@ -47,82 +48,127 @@ export default function ServiceSelect({
         type="button"
         onClick={() => !isLoading && setOpen(!open)}
         className={cn(
-          "w-full flex items-center justify-between px-3 py-2 rounded-lg border bg-white border-slate-300 text-left focus:ring-2 focus:ring-emerald-500 transition-all text-sm h-10",
-          error && "border-red-500 focus:ring-red-500",
+          "w-full flex items-center justify-between px-5 py-3.5 rounded-2xl border bg-slate-50 transition-all duration-300 shadow-sm group",
+          error
+            ? "border-rose-200 focus:ring-4 focus:ring-rose-500/10 focus:border-rose-500"
+            : "border-slate-100 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500",
           isLoading && "opacity-50 cursor-not-allowed",
+          open &&
+            "bg-white border-emerald-500 ring-4 ring-emerald-500/10 shadow-lg shadow-emerald-100/50",
         )}
       >
-        <span
-          className={cn(
-            "block truncate flex-1",
-            !selectedService && "text-slate-500",
-          )}
-        >
-          {selectedService ? (
-            <span className="flex items-center gap-2">
-              <span className="font-medium">{selectedService.name}</span>
-              <span className="text-xs text-slate-500 flex items-center gap-1">
-                | {selectedService.duration}m - ${selectedService.price}
-              </span>
+        <div className="flex items-center gap-3">
+          <div
+            className={cn(
+              "p-2 rounded-xl transition-colors duration-300",
+              selectedService
+                ? "bg-emerald-50 text-emerald-600"
+                : "bg-slate-100 text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-500",
+            )}
+          >
+            <Stethoscope size={18} />
+          </div>
+          <div className="text-left">
+            <span
+              className={cn(
+                "block truncate text-sm font-semibold",
+                !selectedService ? "text-slate-400" : "text-slate-700",
+              )}
+            >
+              {selectedService
+                ? selectedService.name
+                : "Seleccionar servicio..."}
             </span>
-          ) : (
-            "Select a service..."
-          )}
-        </span>
+            {selectedService && (
+              <div className="flex items-center gap-2 mt-0.5">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                  <Clock size={10} className="text-emerald-500" />{" "}
+                  {selectedService.duration} min
+                </span>
+                <span className="w-1 h-1 bg-slate-200 rounded-full" />
+                <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">
+                  ${selectedService.price}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
         {isLoading ? (
-          <Loader2 className="w-4 h-4 animate-spin opacity-50 ml-2" />
+          <Loader2 className="w-4 h-4 animate-spin text-emerald-500" />
         ) : (
-          <ChevronsUpDown className="w-4 h-4 opacity-50 ml-2" />
+          <ChevronsUpDown
+            className={cn(
+              "w-4 h-4 transition-transform duration-300",
+              open ? "rotate-180 text-emerald-500" : "text-slate-400",
+            )}
+          />
         )}
       </button>
 
-      {error && <p className="mt-1 text-sm text-red-500">{error}</p>}
+      {error && (
+        <p className="mt-2 text-xs text-rose-500 font-bold ml-1">{error}</p>
+      )}
 
       {open && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-          <div className="absolute z-20 mt-1 w-full max-h-60 overflow-auto rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none text-sm">
+          <div className="absolute z-20 mt-3 w-full max-h-[320px] overflow-auto rounded-3xl bg-white p-2 shadow-2xl shadow-emerald-200/50 ring-1 ring-slate-100 focus:outline-none scrollbar-thin scrollbar-thumb-slate-100 animate-in fade-in slide-in-from-top-2 duration-300">
             {services.length === 0 ? (
-              <div className="px-4 py-2 text-slate-500 text-center">
-                No services found.
+              <div className="px-4 py-8 text-center text-slate-500">
+                <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Stethoscope className="w-6 h-6 text-slate-200" />
+                </div>
+                <p className="text-sm font-medium text-slate-400">
+                  No hay servicios activos.
+                </p>
               </div>
             ) : (
-              services.map((service) => (
-                <button
-                  key={service.id}
-                  type="button"
-                  className={cn(
-                    "w-full text-left relative cursor-pointer select-none py-2 px-3 text-slate-900 hover:bg-emerald-50 flex flex-col gap-0.5",
-                    value === service.id && "bg-emerald-50",
-                  )}
-                  onClick={() => {
-                    onChange(service.id);
-                    setOpen(false);
-                  }}
-                >
-                  <div className="flex items-center justify-between">
-                    <span
-                      className={cn(
-                        "font-medium",
-                        value === service.id && "text-emerald-700",
-                      )}
-                    >
-                      {service.name}
-                    </span>
-                    {value === service.id && (
-                      <Check className="w-4 h-4 text-emerald-600" />
+              <div className="space-y-1">
+                {services.map((service) => (
+                  <button
+                    key={service.id}
+                    type="button"
+                    className={cn(
+                      "w-full text-left relative cursor-pointer select-none p-3.5 rounded-2xl transition-all duration-200 group/item flex flex-col gap-1",
+                      value === service.id
+                        ? "bg-emerald-50"
+                        : "text-slate-600 hover:bg-slate-50",
                     )}
-                  </div>
-                  <div className="flex items-center gap-3 text-xs text-slate-500">
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" /> {service.duration} min
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <DollarSign className="w-3 h-3" /> ${service.price}
-                    </span>
-                  </div>
-                </button>
-              ))
+                    onClick={() => {
+                      onChange(service.id);
+                      setOpen(false);
+                    }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span
+                        className={cn(
+                          "text-sm font-bold",
+                          value === service.id
+                            ? "text-emerald-900"
+                            : "text-slate-700",
+                        )}
+                      >
+                        {service.name}
+                      </span>
+                      {value === service.id && (
+                        <div className="w-6 h-6 bg-emerald-600 rounded-full flex items-center justify-center text-white shadow-lg shadow-emerald-200 animate-in zoom-in-50">
+                          <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-1.5 px-2 py-0.5 bg-white rounded-lg border border-slate-100 text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                        <Clock size={12} className="text-emerald-500" />
+                        {service.duration} min
+                      </div>
+                      <div className="flex items-center gap-1.5 px-2 py-0.5 bg-emerald-600 rounded-lg text-[10px] font-black text-white uppercase tracking-widest shadow-sm">
+                        <DollarSign size={12} />
+                        {service.price}
+                      </div>
+                    </div>
+                  </button>
+                ))}
+              </div>
             )}
           </div>
         </>

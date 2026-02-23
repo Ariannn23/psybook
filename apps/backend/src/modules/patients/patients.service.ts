@@ -6,13 +6,14 @@ export async function createPatient(data: CreatePatientInput) {
   return prisma.patient.create({ data });
 }
 
-export async function getAllPatients() {
+export async function getAllPatients(userId: string) {
   return prisma.patient.findMany({
+    where: { userId },
     orderBy: { createdAt: "desc" },
     include: {
       _count: { select: { appointments: true } },
       appointments: {
-        where: { status: "COMPLETED" },
+        where: { userId, status: "COMPLETED" },
         orderBy: [{ date: "desc" }, { startTime: "desc" }],
         take: 1,
         include: { service: true },
@@ -21,11 +22,12 @@ export async function getAllPatients() {
   });
 }
 
-export async function getPatientById(id: string) {
-  const patient = await prisma.patient.findUnique({
-    where: { id },
+export async function getPatientById(id: string, userId: string) {
+  const patient = await prisma.patient.findFirst({
+    where: { id, userId },
     include: {
       appointments: {
+        where: { userId },
         include: { service: true, user: { select: { id: true, name: true } } },
       },
     },
@@ -34,14 +36,18 @@ export async function getPatientById(id: string) {
   return patient;
 }
 
-export async function updatePatient(id: string, data: UpdatePatientInput) {
-  const exists = await prisma.patient.findUnique({ where: { id } });
+export async function updatePatient(
+  id: string,
+  userId: string,
+  data: UpdatePatientInput,
+) {
+  const exists = await prisma.patient.findFirst({ where: { id, userId } });
   if (!exists) throw createError("Patient not found", 404);
   return prisma.patient.update({ where: { id }, data });
 }
 
-export async function deletePatient(id: string) {
-  const exists = await prisma.patient.findUnique({ where: { id } });
+export async function deletePatient(id: string, userId: string) {
+  const exists = await prisma.patient.findFirst({ where: { id, userId } });
   if (!exists) throw createError("Patient not found", 404);
   return prisma.patient.delete({ where: { id } });
 }

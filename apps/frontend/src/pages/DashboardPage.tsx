@@ -86,17 +86,17 @@ export default function DashboardPage() {
           isSidebarOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-emerald-50/10">
+        <div className="p-6 border-b border-slate-50 flex items-center justify-between mb-2">
           <div className="flex items-center gap-3">
-            <div className="relative">
+            <div className="relative group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-red-100 to-amber-50 rounded-full blur opacity-40 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
               <img
                 src="/icono_psybook.png"
                 alt="PsyBook Logo"
-                className="w-9 h-9 object-contain drop-shadow-sm"
+                className="w-10 h-10 object-contain relative"
               />
-              <div className="absolute inset-0 bg-emerald-400/20 rounded-full blur-xl -z-10"></div>
             </div>
-            <h1 className="text-xl font-black text-slate-900 tracking-tight">
+            <h1 className="text-2xl font-black text-[#0f172a] tracking-tight">
               PsyBook
             </h1>
           </div>
@@ -120,24 +120,24 @@ export default function DashboardPage() {
                 key={item.href}
                 to={item.href}
                 className={cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 text-sm font-bold relative group",
+                  "flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 text-sm font-bold relative group mb-1",
                   isActive
-                    ? "bg-slate-900 text-white shadow-xl shadow-slate-200"
-                    : "text-slate-500 hover:bg-emerald-50/50 hover:text-emerald-700 hover:translate-x-1",
+                    ? "bg-[#0f172a] text-white shadow-lg"
+                    : "text-[#475569] hover:bg-[#f8fafc] hover:text-[#0f172a]",
                 )}
               >
+                {isActive && (
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-7 bg-[#10b981] rounded-r-full"></div>
+                )}
                 <item.icon
-                  size={18}
+                  size={20}
                   className={cn(
                     "transition-transform duration-300",
-                    isActive && "scale-110",
-                    !isActive && "group-hover:scale-110",
+                    isActive && "text-white",
+                    !isActive && "text-[#94a3b8] group-hover:text-[#0f172a]",
                   )}
                 />
                 <span className="relative z-10">{item.label}</span>
-                {isActive && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-6 bg-emerald-500 rounded-r-full"></div>
-                )}
               </Link>
             );
           })}
