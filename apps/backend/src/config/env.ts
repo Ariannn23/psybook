@@ -12,6 +12,7 @@ const envSchema = z.object({
     .string()
     .default("http://localhost:5173")
     .transform((val) => val.split(",").map((s) => s.trim())),
+  RESEND_API_KEY: z.string().default(""),
 });
 
 const result = envSchema.safeParse(process.env);
