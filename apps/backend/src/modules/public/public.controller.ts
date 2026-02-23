@@ -213,6 +213,7 @@ export async function createPublicAppointment(
 ): Promise<void> {
   try {
     const bookingSchema = z.object({
+      doctorId: z.string().uuid(),
       serviceId: z.string().uuid(),
       date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
       startTime: z.string().regex(/^\d{2}:\d{2}$/),
@@ -226,24 +227,15 @@ export async function createPublicAppointment(
 
     const body = bookingSchema.parse(req.body);
 
-    const { doctorId } = req.body;
-
-    if (!doctorId) {
-      res
-        .status(400)
-        .json({ success: false, message: "Doctor ID is required" });
-      return;
-    }
-
     // 1. Verify doctor
     const doctor = await prisma.user.findUnique({
-      where: { id: doctorId, role: "PSYCHOLOGIST" },
+      where: { id: body.doctorId, role: "PSYCHOLOGIST" },
     });
 
     if (!doctor) {
       res
         .status(404)
-        .json({ success: false, message: "Psychologist not found" });
+        .json({ success: false, message: "Profesional no encontrado" });
       return;
     }
 
@@ -306,6 +298,15 @@ export async function createPublicAppointment(
 
     res.status(201).json({ success: true, data: appointment });
   } catch (error) {
+    console.error("DEBUG: createPublicAppointment Error:", error);
+    if (error instanceof z.ZodError) {
+      res.status(400).json({
+        success: false,
+        message: "Datos de reserva inválidos",
+        errors: error.errors,
+      });
+      return;
+    }
     next(error);
   }
 }
