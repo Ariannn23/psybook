@@ -57,7 +57,7 @@ export default function PublicBookingPage() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
-    phone: "",
+    phone: "+51 ",
     dni: "",
   });
 
@@ -549,7 +549,7 @@ export default function PublicBookingPage() {
                       <input
                         required
                         type="tel"
-                        placeholder="Ej: +54 9 11 ..."
+                        placeholder="Ej: +51 900 000 000"
                         className="w-full px-5 py-4 bg-slate-50 border-2 border-transparent focus:border-emerald-500 focus:bg-white rounded-2xl outline-none transition-all font-medium"
                         value={formData.phone}
                         onChange={(e) =>
