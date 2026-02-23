@@ -44,14 +44,17 @@ export async function sendEmail({
     );
 
     const { data, error } = await resend.emails.send({
-      from: "PsyBook <onboarding@resend.dev>", // Default Resend test domain
+      from: "PsyBook <onboarding@resend.dev>",
       to,
       subject,
       html,
     });
 
     if (error) {
-      console.error("❌ Resend API Error:", error);
+      console.error(
+        "❌ Resend API Error Details:",
+        JSON.stringify(error, null, 2),
+      );
       return false;
     }
 
