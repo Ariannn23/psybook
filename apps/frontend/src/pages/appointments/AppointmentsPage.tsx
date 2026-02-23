@@ -17,7 +17,6 @@ import {
   Eye,
   X,
   Search,
-  Filter,
   User,
   Briefcase,
   FileText,
@@ -28,6 +27,7 @@ import CalendarView from "@/components/appointments/CalendarView";
 import WeeklyView from "@/components/appointments/WeeklyView";
 import AppointmentForm from "@/components/appointments/AppointmentForm";
 import PageLoader from "@/components/ui/PageLoader";
+import StatusFilter from "@/components/ui/StatusFilter";
 
 // Función para formatear fecha sin conversión de zona horaria
 function formatDateWithoutTimezone(dateString: string): string {
@@ -306,24 +306,17 @@ export default function AppointmentsPage() {
             </div>
 
             <div className="flex items-center gap-3 w-full md:w-auto">
-              <div className="relative flex-1 md:flex-none">
-                <Filter className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
-                <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="w-full pl-10 pr-10 py-3 rounded-2xl border border-slate-200 bg-white text-sm font-bold text-slate-700 focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none appearance-none cursor-pointer hover:border-emerald-300 transition-all shadow-sm"
-                  aria-label="Filtrar por estado"
-                >
-                  <option value="all">Todos los estados</option>
-                  <option value="PENDING">Pendientes</option>
-                  <option value="CONFIRMED">Confirmadas</option>
-                  <option value="COMPLETED">Atendidas</option>
-                  <option value="CANCELLED">Canceladas</option>
-                </select>
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                  <div className="w-1.5 h-1.5 rounded-full bg-slate-400"></div>
-                </div>
-              </div>
+              <StatusFilter
+                value={statusFilter}
+                onChange={setStatusFilter}
+                options={[
+                  { value: "all", label: "Todos los estados" },
+                  { value: "PENDING", label: "Pendientes" },
+                  { value: "CONFIRMED", label: "Confirmadas" },
+                  { value: "COMPLETED", label: "Atendidas" },
+                  { value: "CANCELLED", label: "Canceladas" },
+                ]}
+              />
             </div>
           </div>
         )}
