@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { format, isSameDay, addDays, getDay } from "date-fns";
+import { format, isSameDay, addDays } from "date-fns";
 import { es } from "date-fns/locale";
 import {
   CheckCircle2,
@@ -387,12 +387,10 @@ export default function PublicBookingPage() {
                       {Array.from({ length: 12 }).map((_, i) => {
                         const date = addDays(new Date(), i);
                         const isSelected = isSameDay(date, selectedDate);
-                        const isSun = getDay(date) === 0;
 
                         return (
                           <button
                             key={i}
-                            disabled={isSun}
                             onClick={() => {
                               setSelectedDate(date);
                               setSelectedSlot(null);
@@ -401,9 +399,7 @@ export default function PublicBookingPage() {
                               "flex flex-col items-center p-3 rounded-2xl border-2 transition-all",
                               isSelected
                                 ? "bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-100"
-                                : isSun
-                                  ? "opacity-20 cursor-not-allowed bg-slate-50 border-transparent"
-                                  : "bg-white border-slate-50 hover:border-emerald-200",
+                                : "bg-white border-slate-50 hover:border-emerald-200",
                             )}
                           >
                             <span className="text-[10px] font-bold uppercase mb-1 opacity-70">

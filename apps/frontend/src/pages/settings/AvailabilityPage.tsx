@@ -2,7 +2,12 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { cn } from "@/lib/utils";
 import {
+  Pencil,
+  X,
+  List,
+  LayoutGrid,
   Loader2,
   Plus,
   Trash2,
@@ -16,10 +21,10 @@ import {
   updateSchedule,
 } from "@/api/schedules";
 import type { Schedule } from "@/types/schedules";
-import { cn } from "@/lib/utils";
-import { Pencil, X, List, LayoutGrid } from "lucide-react";
 import WeeklyScheduleView from "@/components/schedules/WeeklyScheduleView";
 import PageLoader from "@/components/ui/PageLoader";
+import DaySelect from "@/components/ui/DaySelect";
+import { Controller } from "react-hook-form";
 
 const DAYS = [
   "Domingo",
@@ -66,6 +71,7 @@ export default function AvailabilityPage() {
     handleSubmit,
     reset,
     setValue,
+    control,
     formState: { errors },
   } = useForm<ScheduleFormData>({
     resolver: zodResolver(scheduleSchema),
@@ -274,18 +280,17 @@ export default function AvailabilityPage() {
                 <label className="text-xs font-bold uppercase tracking-widest text-slate-400">
                   Día de la Semana
                 </label>
-                <select
-                  {...register("day")}
-                  className="w-full px-4 py-3 rounded-2xl border border-slate-200 bg-white focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 outline-none transition-all shadow-sm font-semibold text-slate-700 cursor-pointer appearance-none"
-                >
-                  {DAYS.map((day, index) => (
-                    <option key={index} value={index}>
-                      {day}
-                    </option>
-                  ))}
-                </select>
+                <Controller
+                  name="day"
+                  control={control}
+                  render={({ field }) => (
+                    <DaySelect
+                      value={Number(field.value)}
+                      onChange={field.onChange}
+                    />
+                  )}
+                />
               </div>
-
               <div className="flex flex-col gap-4">
                 <div className="space-y-2">
                   <label className="text-xs font-bold uppercase tracking-widest text-slate-400">
@@ -319,7 +324,6 @@ export default function AvailabilityPage() {
               {errors.endTime && (
                 <p className="text-xs text-red-500">{errors.endTime.message}</p>
               )}
-
               <button
                 type="submit"
                 disabled={isSubmitting}
