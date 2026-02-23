@@ -122,19 +122,19 @@ export default function DashboardPage() {
                 className={cn(
                   "flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300 text-sm font-bold relative group mb-1",
                   isActive
-                    ? "bg-[#0f172a] text-white shadow-lg"
-                    : "text-[#475569] hover:bg-[#f8fafc] hover:text-[#0f172a]",
+                    ? "bg-emerald-50 text-emerald-700 shadow-sm"
+                    : "text-[#475569] hover:bg-[#f8fafc] hover:text-emerald-600",
                 )}
               >
                 {isActive && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-7 bg-[#10b981] rounded-r-full"></div>
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-7 bg-emerald-500 rounded-r-full"></div>
                 )}
                 <item.icon
                   size={20}
                   className={cn(
                     "transition-transform duration-300",
-                    isActive && "text-white",
-                    !isActive && "text-[#94a3b8] group-hover:text-[#0f172a]",
+                    isActive && "text-emerald-600",
+                    !isActive && "text-[#94a3b8] group-hover:text-emerald-600",
                   )}
                 />
                 <span className="relative z-10">{item.label}</span>
