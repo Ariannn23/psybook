@@ -8,7 +8,10 @@ const envSchema = z.object({
   MAIL_PORT: z.coerce.number().default(587),
   MAIL_USER: z.string().default(""),
   MAIL_PASS: z.string().default(""),
-  FRONTEND_URL: z.string().default("http://localhost:5173"),
+  FRONTEND_URL: z
+    .string()
+    .default("http://localhost:5173")
+    .transform((val) => val.split(",").map((s) => s.trim())),
 });
 
 const result = envSchema.safeParse(process.env);
