@@ -47,9 +47,11 @@ export default function LandingPage() {
       <nav className="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-xl border-b border-white/20 shadow-sm/5">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-linear-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-200">
-              <Brain className="text-white w-6 h-6" />
-            </div>
+            <img
+              src="/icono_psybook.png"
+              alt="PsyBook Logo"
+              className="w-10 h-10 object-contain drop-shadow-sm"
+            />
             <span className="text-2xl font-bold tracking-tight bg-linear-to-r from-slate-900 to-slate-600 bg-clip-text text-transparent">
               PsyBook
             </span>
@@ -451,9 +453,11 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-16 mb-24">
             <div className="col-span-1 lg:col-span-1">
               <div className="flex items-center gap-3 mb-8">
-                <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <Brain className="text-white w-6 h-6" />
-                </div>
+                <img
+                  src="/icono_psybook.png"
+                  alt="PsyBook Logo"
+                  className="w-10 h-10 object-contain"
+                />
                 <span className="text-2xl font-black text-slate-900">
                   PsyBook
                 </span>

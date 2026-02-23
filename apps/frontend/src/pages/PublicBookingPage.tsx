@@ -148,9 +148,11 @@ export default function PublicBookingPage() {
               <ArrowLeft className="w-6 h-6" />
             </Link>
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-linear-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-lg shadow-emerald-200">
-                <span className="text-white font-bold text-xl">P</span>
-              </div>
+              <img
+                src="/icono_psybook.png"
+                alt="PsyBook Logo"
+                className="w-10 h-10 object-contain drop-shadow-sm"
+              />
               <span className="text-xl font-bold tracking-tight text-slate-800">
                 PsyBook
               </span>
