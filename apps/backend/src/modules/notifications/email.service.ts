@@ -10,10 +10,13 @@ console.log("📧 Email Configuration:", {
 });
 
 // Create transporter
+const isGmail = env.MAIL_HOST.includes("gmail.com");
+
 const transporter = nodemailer.createTransport({
-  host: env.MAIL_HOST,
-  port: env.MAIL_PORT,
-  secure: env.MAIL_PORT === 465, // true for 465, false for other ports
+  ...(isGmail
+    ? { service: "gmail" }
+    : { host: env.MAIL_HOST, port: env.MAIL_PORT }),
+  secure: isGmail ? true : env.MAIL_PORT === 465,
   auth: {
     user: env.MAIL_USER,
     pass: env.MAIL_PASS,
@@ -28,7 +31,9 @@ transporter
   })
   .catch((error) => {
     console.error("❌ Email service ERROR:", error.message);
-    console.error("ℹ️ Configure MAIL_HOST, MAIL_PORT, MAIL_USER, MAIL_PASS in .env");
+    console.error(
+      "ℹ️ Configure MAIL_HOST, MAIL_PORT, MAIL_USER, MAIL_PASS in .env",
+    );
   });
 
 interface SendEmailOptions {
@@ -45,13 +50,18 @@ export async function sendEmail({
   try {
     // Check if email is configured
     if (!env.MAIL_USER || !env.MAIL_PASS) {
-      console.warn("⚠️ Email credentials not configured. Skipping send to:", to);
-      console.warn("ℹ️ Configure MAIL_USER and MAIL_PASS in .env to enable emails");
+      console.warn(
+        "⚠️ Email credentials not configured. Skipping send to:",
+        to,
+      );
+      console.warn(
+        "ℹ️ Configure MAIL_USER and MAIL_PASS in .env to enable emails",
+      );
       return false;
     }
 
     console.log(`📤 Sending email to ${to} with subject: "${subject}"`);
-    
+
     const result = await transporter.sendMail({
       from: env.MAIL_USER,
       to,
