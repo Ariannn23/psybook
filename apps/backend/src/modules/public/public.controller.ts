@@ -239,15 +239,26 @@ export async function createPublicAppointment(
       return;
     }
 
-    // 2. Find or Create Patient (Idempotent by DNI or Email within this doctor's scope)
+    // 2. Find or Create Patient (Idempotent by DNI within this doctor's scope)
     let patient = await prisma.patient.findFirst({
       where: {
         userId: doctor.id,
-        OR: [{ dni: body.patientData.dni }, { email: body.patientData.email }],
+        dni: body.patientData.dni,
       },
     });
 
-    if (!patient) {
+    if (patient) {
+      // Update patient info if it exists (in case email/phone/name changed)
+      patient = await prisma.patient.update({
+        where: { id: patient.id },
+        data: {
+          name: body.patientData.name,
+          email: body.patientData.email,
+          phone: body.patientData.phone,
+        },
+      });
+    } else {
+      // Create new patient
       patient = await prisma.patient.create({
         data: {
           name: body.patientData.name,
