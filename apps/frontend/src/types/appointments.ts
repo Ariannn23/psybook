@@ -2,12 +2,15 @@ import type { Patient } from "./patients";
 import type { User } from "./auth";
 import type { Service } from "./services";
 
-export enum AppointmentStatus {
-  PENDING = "PENDING",
-  CONFIRMED = "CONFIRMED",
-  CANCELLED = "CANCELLED",
-  COMPLETED = "COMPLETED",
-}
+export const AppointmentStatus = {
+  PENDING: "PENDING",
+  CONFIRMED: "CONFIRMED",
+  CANCELLED: "CANCELLED",
+  COMPLETED: "COMPLETED",
+} as const;
+
+export type AppointmentStatus =
+  (typeof AppointmentStatus)[keyof typeof AppointmentStatus];
 
 export interface Appointment {
   id: string;

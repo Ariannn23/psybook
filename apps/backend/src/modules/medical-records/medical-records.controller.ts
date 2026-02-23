@@ -16,10 +16,9 @@ export async function create(
 
     // Handle file uploads
     let attachments: string[] = [];
-    if (req.files && Array.isArray(req.files)) {
-      attachments = (req.files as Express.Multer.File[]).map(
-        (file) => file.filename,
-      );
+    const files = (req as any).files;
+    if (files && Array.isArray(files)) {
+      attachments = files.map((file: any) => file.filename);
     }
 
     const body = {
