@@ -10,29 +10,34 @@ console.log("📧 Email Configuration:", {
 });
 
 // Create transporter
-// For Gmail, we can use 'service: gmail' or manual config.
-// Manual config with port 587/465 is often more reliable on some cloud providers.
+// Render often blocks port 587. Port 465 (SMTPS) is sometimes more successful.
 const isGmail = env.MAIL_HOST.includes("gmail.com");
 
 console.log(
   `📡 Preparing email transporter for ${isGmail ? "Gmail" : env.MAIL_HOST}...`,
 );
+console.log(
+  `ℹ️ Using Port: ${env.MAIL_PORT}, Secure: ${env.MAIL_PORT === 465}`,
+);
 
 const transporter = nodemailer.createTransport({
   host: env.MAIL_HOST,
   port: env.MAIL_PORT,
-  secure: env.MAIL_PORT === 465, // true for 465, false for other ports
+  secure: env.MAIL_PORT === 465, // true for 465, false for 587
   auth: {
     user: env.MAIL_USER,
     pass: env.MAIL_PASS,
   },
   tls: {
-    // Do not fail on invalid certs (common issue in some environments)
+    // Do not fail on invalid certs
     rejectUnauthorized: false,
+    minVersion: "TLSv1.2",
   },
-  // Enable debug logs to help identify why emails aren't reaching their destination
+  // Debugging logs
   debug: true,
   logger: true,
+  connectionTimeout: 10000, // 10 seconds
+  greetingTimeout: 10000,
 });
 
 // Verify connection
@@ -42,9 +47,10 @@ transporter.verify((error, success) => {
       message: error.message,
       code: (error as any).code,
       command: (error as any).command,
+      stack: error.stack,
     });
     console.error(
-      "ℹ️ Check your MAIL_USER and MAIL_PASS (App Password). Ensure MAIL_PORT is correct (587 or 465).",
+      "ℹ️ Connection Timeout often means the port is blocked by Render. Try switching between 465 and 587 in environment variables.",
     );
   } else {
     console.log("✅ Email service ready - SMTP connection successful");
