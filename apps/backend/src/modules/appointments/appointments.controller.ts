@@ -30,9 +30,11 @@ export async function getAll(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const { userId, date, status } = req.query;
+    // @ts-ignore
+    const authenticatedUserId = req.user.id;
+    const { date, status } = req.query;
     const appointments = await appointmentsService.getAllAppointments({
-      userId: userId as string,
+      userId: authenticatedUserId, // Force use of authenticated userId
       date: date as string,
       status: status as string,
     });
@@ -48,9 +50,18 @@ export async function getById(
   next: NextFunction,
 ): Promise<void> {
   try {
+    // @ts-ignore
+    const authenticatedUserId = req.user.id;
     const appointment = await appointmentsService.getAppointmentById(
       req.params.id,
     );
+
+    // Verify ownership
+    if (appointment.userId !== authenticatedUserId) {
+      res.status(404).json({ success: false, message: "Cita no encontrada" });
+      return;
+    }
+
     res.json({ success: true, data: appointment });
   } catch (error) {
     next(error);
@@ -63,12 +74,24 @@ export async function update(
   next: NextFunction,
 ): Promise<void> {
   try {
+    // @ts-ignore
+    const authenticatedUserId = req.user.id;
+
+    // First verify ownership
+    const appointment = await appointmentsService.getAppointmentById(
+      req.params.id,
+    );
+    if (appointment.userId !== authenticatedUserId) {
+      res.status(404).json({ success: false, message: "Cita no encontrada" });
+      return;
+    }
+
     const data = updateAppointmentSchema.parse(req.body);
-    const appointment = await appointmentsService.updateAppointment(
+    const updatedAppointment = await appointmentsService.updateAppointment(
       req.params.id,
       data,
     );
-    res.json({ success: true, data: appointment });
+    res.json({ success: true, data: updatedAppointment });
   } catch (error) {
     next(error);
   }
@@ -80,8 +103,20 @@ export async function remove(
   next: NextFunction,
 ): Promise<void> {
   try {
+    // @ts-ignore
+    const authenticatedUserId = req.user.id;
+
+    // First verify ownership
+    const appointment = await appointmentsService.getAppointmentById(
+      req.params.id,
+    );
+    if (appointment.userId !== authenticatedUserId) {
+      res.status(404).json({ success: false, message: "Cita no encontrada" });
+      return;
+    }
+
     await appointmentsService.deleteAppointment(req.params.id);
-    res.json({ success: true, message: "Appointment deleted" });
+    res.json({ success: true, message: "Cita eliminada correctamente" });
   } catch (error) {
     next(error);
   }
