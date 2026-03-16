@@ -309,7 +309,6 @@ export async function createPublicAppointment(
 
     res.status(201).json({ success: true, data: appointment });
   } catch (error) {
-    console.error("DEBUG: createPublicAppointment Error:", error);
     if (error instanceof z.ZodError) {
       res.status(400).json({
         success: false,

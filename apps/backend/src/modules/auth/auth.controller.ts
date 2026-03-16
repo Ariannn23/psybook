@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { registerSchema, loginSchema } from "./auth.schema";
 import { registerService, loginService, getMeService } from "./auth.service";
+import { createError } from "../../middlewares/error.middleware";
 
 export async function register(
   req: Request,
@@ -36,7 +37,8 @@ export async function getMe(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const userId = req.user!.id;
+    const userId = req.user?.id;
+    if (!userId) throw createError("No autorizado", 401);
     const user = await getMeService(userId);
     res.status(200).json({ success: true, data: user });
   } catch (error) {

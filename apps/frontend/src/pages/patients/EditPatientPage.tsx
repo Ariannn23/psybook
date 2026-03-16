@@ -5,6 +5,7 @@ import type { Patient, UpdatePatientInput } from "@/types/patients";
 import PatientForm from "@/components/patients/PatientForm";
 import { Loader2, ArrowLeft } from "lucide-react";
 import axios from "axios";
+import { logger } from "@/utils/logger";
 
 export default function EditPatientPage() {
   const { id } = useParams<{ id: string }>();
@@ -21,7 +22,7 @@ export default function EditPatientPage() {
         const data = await getPatient(id);
         setPatient(data);
       } catch (err) {
-        console.error("Failed to fetch patient:", err);
+        logger.error("Failed to fetch patient:", err);
         setError("No se pudo cargar la información del paciente.");
       } finally {
         setIsLoading(false);
@@ -30,13 +31,12 @@ export default function EditPatientPage() {
     fetchPatient();
   }, [id]);
 
-  const handleSubmit = async (data: any) => {
+  const handleSubmit = async (data: UpdatePatientInput) => {
     if (!id) return;
     setIsSaving(true);
     setError("");
     try {
-      // Cast to UpdatePatientInput (dni is now optional in partial)
-      await updatePatient(id, data as UpdatePatientInput);
+      await updatePatient(id, data);
       navigate("/dashboard/patients");
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {

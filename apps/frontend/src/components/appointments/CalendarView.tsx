@@ -53,7 +53,6 @@ export default function CalendarView({ appointments }: CalendarViewProps) {
 
   return (
     <div className="bg-white rounded-xl shadow border border-slate-200 overflow-hidden">
-      {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-slate-200 bg-slate-50">
         <div className="flex items-center gap-4">
           <h2 className="text-lg font-bold text-slate-800 capitalize">
@@ -85,7 +84,6 @@ export default function CalendarView({ appointments }: CalendarViewProps) {
         </div>
       </div>
 
-      {/* Days Header */}
       <div className="grid grid-cols-7 border-b border-slate-200 bg-slate-50/50">
         {weekDays.map((day, i) => (
           <div
@@ -97,7 +95,6 @@ export default function CalendarView({ appointments }: CalendarViewProps) {
         ))}
       </div>
 
-      {/* Calendar Grid */}
       <div className="grid grid-cols-7 auto-rows-fr bg-slate-100 gap-px border-b border-slate-200">
         {days.map((day) => {
           const isSelectedMonth = isSameMonth(day, monthStart);

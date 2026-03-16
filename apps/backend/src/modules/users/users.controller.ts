@@ -1,6 +1,13 @@
 import { Request, Response, NextFunction } from "express";
 import * as userService from "./users.service";
 import { updateUserSchema } from "./users.schema";
+import { createError } from "../../middlewares/error.middleware";
+
+function requireUserId(req: Request): string {
+  const userId = req.user?.id;
+  if (!userId) throw createError("No autorizado", 401);
+  return userId;
+}
 
 export async function getProfile(
   req: Request,
@@ -8,8 +15,7 @@ export async function getProfile(
   next: NextFunction,
 ) {
   try {
-    // @ts-ignore
-    const userId = req.user.id;
+    const userId = requireUserId(req);
     const user = await userService.getUserById(userId);
     res.json({ success: true, data: user });
   } catch (error) {
@@ -23,8 +29,7 @@ export async function updateProfile(
   next: NextFunction,
 ) {
   try {
-    // @ts-ignore
-    const userId = req.user.id;
+    const userId = requireUserId(req);
     const data = updateUserSchema.parse(req.body);
     const updatedUser = await userService.updateUser(userId, data);
     res.json({ success: true, data: updatedUser });

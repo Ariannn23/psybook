@@ -2,6 +2,14 @@ import swaggerJsdoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express";
 import { Express } from "express";
 
+const serverUrl = (() => {
+  if (process.env.API_URL) return process.env.API_URL;
+  if (process.env.NODE_ENV !== "production") {
+    return `http://localhost:${process.env.PORT || 4001}`;
+  }
+  return undefined;
+})();
+
 const options: swaggerJsdoc.Options = {
   definition: {
     openapi: "3.0.0",
@@ -14,12 +22,9 @@ const options: swaggerJsdoc.Options = {
         name: "PsyBook Team",
       },
     },
-    servers: [
-      {
-        url: `http://localhost:${process.env.PORT || 4001}`,
-        description: "Development server",
-      },
-    ],
+    ...(serverUrl
+      ? { servers: [{ url: serverUrl, description: "API server" }] }
+      : {}),
     components: {
       securitySchemes: {
         bearerAuth: {
@@ -37,15 +42,9 @@ const options: swaggerJsdoc.Options = {
 const swaggerSpec = swaggerJsdoc(options);
 
 export function swaggerDocs(app: Express): void {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  app.use(
-    "/api/docs",
-    swaggerUi.serve as any,
-    swaggerUi.setup(swaggerSpec) as any,
-  );
+  app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
   app.get("/api/docs.json", (_req, res) => {
     res.setHeader("Content-Type", "application/json");
     res.send(swaggerSpec);
   });
-  console.log("📖 Swagger docs available at /api/docs");
 }

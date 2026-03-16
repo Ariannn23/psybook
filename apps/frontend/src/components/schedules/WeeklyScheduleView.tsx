@@ -30,12 +30,10 @@ export default function WeeklyScheduleView({
     return time.slice(0, 5); // "09:00"
   };
 
-  // Helper to get date for the current week's day
   const getDateForDay = (dayIndex: number) => {
     const today = new Date();
     const currentDay = today.getDay(); // 0 (Sun) - 6 (Sat)
 
-    // Calculate difference to get the target day
     const diff = dayIndex - currentDay;
 
     const targetDate = new Date(today);
@@ -85,7 +83,6 @@ export default function WeeklyScheduleView({
                 onMouseEnter={() => setHoveredDay(day.value)}
                 onMouseLeave={() => setHoveredDay(null)}
               >
-                {/* Day Header */}
                 <div
                   className={cn(
                     "p-3 text-center border-b",
@@ -112,7 +109,6 @@ export default function WeeklyScheduleView({
                   </p>
                 </div>
 
-                {/* Content */}
                 <div className="p-2 flex-1 flex flex-col gap-2 min-h-[160px]">
                   {hasSchedules ? (
                     daySchedules.map((schedule) => (

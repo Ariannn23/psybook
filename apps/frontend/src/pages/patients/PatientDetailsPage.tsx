@@ -13,11 +13,13 @@ import {
   Pencil,
   X,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import MedicalRecordTimeline from "@/components/patients/MedicalRecordTimeline";
 import PageLoader from "@/components/ui/PageLoader";
+import { logger } from "@/utils/logger";
+import type { Appointment } from "@/types/appointments";
 
-// Función para formatear fecha sin conversión de zona horaria
 function formatDateWithoutTimezone(dateString: string): string {
   const dateObj = new Date(dateString);
   const year = dateObj.getUTCFullYear();
@@ -27,13 +29,11 @@ function formatDateWithoutTimezone(dateString: string): string {
   return `${day}/${month}/${year}`;
 }
 
-// Función para capitalizar la primera letra
 function capitalize(str: string): string {
   if (!str) return str;
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-// Convert UTC date string to local Date object without hour shifts for comparison/display
 function getLocalDateFromUTC(dateString: string): Date {
   const dateObj = new Date(dateString);
   return new Date(
@@ -51,9 +51,8 @@ export default function PatientDetailsPage() {
   const [activeTab, setActiveTab] = useState<
     "general" | "history" | "appointments"
   >("general");
-  const [selectedAppointment, setSelectedAppointment] = useState<any | null>(
-    null,
-  );
+  const [selectedAppointment, setSelectedAppointment] =
+    useState<Appointment | null>(null);
 
   useEffect(() => {
     const fetchPatient = async () => {
@@ -62,7 +61,7 @@ export default function PatientDetailsPage() {
         const data = await getPatient(id);
         setPatient(data);
       } catch (error) {
-        console.error("Failed to fetch patient", error);
+        logger.error("Failed to fetch patient", error);
         navigate("/dashboard/patients");
       } finally {
         setIsLoading(false);
@@ -101,12 +100,10 @@ export default function PatientDetailsPage() {
         </div>
       </div>
 
-      {/* Premium Header */}
       <div className="bg-white rounded-4xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden relative">
         <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-50 rounded-full blur-3xl -mr-32 -mt-32 opacity-50"></div>
 
         <div className="relative p-8 flex flex-col md:flex-row items-center gap-8">
-          {/* Dynamic Avatar */}
           <div
             className={cn(
               "h-32 w-32 rounded-4xl flex items-center justify-center text-4xl font-black shadow-lg shadow-emerald-100 border-4 border-white animate-slide-in",
@@ -170,7 +167,6 @@ export default function PatientDetailsPage() {
           </div>
         </div>
 
-        {/* Custom Tabs */}
         <div className="px-8 bg-slate-50/50 border-t border-slate-50">
           <nav className="flex gap-8">
             <TabButton
@@ -195,7 +191,6 @@ export default function PatientDetailsPage() {
         </div>
       </div>
 
-      {/* Main Content Area */}
       <div className="animate-slide-up">
         {activeTab === "general" && (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -411,7 +406,6 @@ export default function PatientDetailsPage() {
           </div>
         )}
 
-        {/* Modal de Detalles de Cita */}
         {selectedAppointment && (
           <div
             className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in"
@@ -421,7 +415,6 @@ export default function PatientDetailsPage() {
               className="bg-white rounded-4xl shadow-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden animate-scale-in"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Scrollable Content */}
               <div className="flex-1 overflow-y-auto p-8 space-y-8 scrollbar-thin scrollbar-thumb-slate-200">
                 <div className="flex justify-between items-start">
                   <div className="space-y-1">
@@ -523,7 +516,6 @@ export default function PatientDetailsPage() {
                 </div>
               </div>
 
-              {/* Fixed Footer */}
               <div className="p-6 bg-slate-50 border-t border-slate-100">
                 <button
                   onClick={() => setSelectedAppointment(null)}
@@ -549,7 +541,7 @@ function TabButton({
   active: boolean;
   onClick: () => void;
   label: string;
-  icon: any;
+  icon: LucideIcon;
 }) {
   return (
     <button

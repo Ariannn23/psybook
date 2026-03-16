@@ -1,13 +1,17 @@
 import axios from "axios";
 
+const apiUrl = import.meta.env.VITE_API_URL;
+if (import.meta.env.PROD && !apiUrl) {
+  throw new Error("VITE_API_URL es requerida en producción");
+}
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:4001/api",
+  baseURL: apiUrl || "http://localhost:4001/api",
   headers: {
     "Content-Type": "application/json",
   },
 });
 
-// Request interceptor to add token
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
@@ -19,14 +23,10 @@ api.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
-// Response interceptor to handle 401 (optional logout)
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // localStorage.removeItem('token');
-      // window.location.href = '/login';
-      // Better handled in Context, but this is a fallback
     }
     return Promise.reject(error);
   },

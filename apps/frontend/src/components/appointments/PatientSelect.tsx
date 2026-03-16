@@ -3,6 +3,7 @@ import { Check, ChevronsUpDown, Loader2, User } from "lucide-react";
 import { getPatients } from "@/api/patients";
 import type { Patient } from "@/types/patients";
 import { cn } from "@/lib/utils";
+import { logger } from "@/utils/logger";
 
 interface PatientSelectProps {
   value?: string;
@@ -25,7 +26,7 @@ export default function PatientSelect({
         const data = await getPatients();
         setPatients(data);
       } catch (err) {
-        console.error("Failed to fetch patients", err);
+        logger.error("Failed to fetch patients", err);
       } finally {
         setIsLoading(false);
       }

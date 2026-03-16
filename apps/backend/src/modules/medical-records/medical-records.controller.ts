@@ -4,6 +4,13 @@ import {
   createMedicalRecordSchema,
   updateMedicalRecordSchema,
 } from "./medical-records.schema";
+import { createError } from "../../middlewares/error.middleware";
+
+function requireUserId(req: Request): string {
+  const userId = req.user?.id;
+  if (!userId) throw createError("No autorizado", 401);
+  return userId;
+}
 
 export async function create(
   req: Request,
@@ -11,15 +18,11 @@ export async function create(
   next: NextFunction,
 ): Promise<void> {
   try {
-    // @ts-ignore
-    const userId = req.user.id;
+    const userId = requireUserId(req);
 
-    // Handle file uploads
     let attachments: string[] = [];
-    const files = (req as any).files;
-    if (files && Array.isArray(files)) {
-      attachments = files.map((file: any) => file.filename);
-    }
+    const files = req.files as Express.Multer.File[] | undefined;
+    attachments = (files || []).map((file) => file.filename);
 
     const body = {
       ...req.body,
@@ -44,9 +47,10 @@ export async function getByPatient(
 ): Promise<void> {
   try {
     const { patientId } = req.params;
+    const userId = requireUserId(req);
     const records =
-      await medicalRecordsService.getMedicalRecordsByPatient(patientId);
-    res.json(records);
+      await medicalRecordsService.getMedicalRecordsByPatient(patientId, userId);
+    res.json({ success: true, data: records });
   } catch (error) {
     next(error);
   }
@@ -59,8 +63,7 @@ export async function update(
 ): Promise<void> {
   try {
     const { id } = req.params;
-    // @ts-ignore
-    const userId = req.user.id;
+    const userId = requireUserId(req);
     const data = updateMedicalRecordSchema.parse(req.body);
     const record = await medicalRecordsService.updateMedicalRecord(
       id,
@@ -80,8 +83,7 @@ export async function remove(
 ): Promise<void> {
   try {
     const { id } = req.params;
-    // @ts-ignore
-    const userId = req.user.id;
+    const userId = requireUserId(req);
     await medicalRecordsService.deleteMedicalRecord(id, userId);
     res.json({ success: true, message: "Medical record deleted" });
   } catch (error) {

@@ -1,19 +1,20 @@
 import { PrismaClient } from "@prisma/client";
+import { logger } from "./src/utils/logger";
 
 const prisma = new PrismaClient();
 
 async function main() {
   const service = await prisma.service.findFirst();
   if (service) {
-    console.log(service.id);
+    logger.info(service.id);
   } else {
-    console.log("NO_SERVICE_FOUND");
+    logger.info("NO_SERVICE_FOUND");
   }
 }
 
 main()
   .catch((e) => {
-    console.error(e);
+    logger.error(e);
     process.exit(1);
   })
   .finally(async () => {

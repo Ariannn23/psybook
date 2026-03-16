@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import api from "@/api/axios";
 import { useAuth } from "@/context/AuthContext";
+import type { ApiResponse } from "@/types/auth";
 
 export interface Notification {
   id: string;
@@ -8,6 +9,14 @@ export interface Notification {
   type: "info" | "success" | "warning" | "error";
   timestamp: Date;
   read: boolean;
+}
+
+interface BackendNotification {
+  id: string;
+  message: string;
+  type: Notification["type"];
+  createdAt: string;
+  isRead: boolean;
 }
 
 export function useNotifications() {
@@ -18,22 +27,22 @@ export function useNotifications() {
   const fetchNotifications = useCallback(async () => {
     if (!isAuthenticated) return;
     try {
-      const response = await api.get("/notifications");
-      // Map backend model to frontend model
-      const mapped = response.data.map((n: any) => ({
+      const response = await api.get<ApiResponse<BackendNotification[]>>(
+        "/notifications",
+      );
+      const rows = response.data.data ?? [];
+      const mapped: Notification[] = rows.map((n) => ({
         id: n.id,
         message: n.message,
-        type: n.type as Notification["type"],
+        type: n.type,
         timestamp: new Date(n.createdAt),
         read: n.isRead,
       }));
       setNotifications(mapped);
     } catch (error) {
-      console.error("Error fetching notifications", error);
     }
   }, [isAuthenticated]);
 
-  // Poll for notifications every 30 seconds
   useEffect(() => {
     if (!isAuthenticated) {
       setNotifications([]);
@@ -56,10 +65,6 @@ export function useNotifications() {
 
   const addNotification = useCallback(
     async (message: string, type: Notification["type"] = "info") => {
-      // Note: This matches the old frontend-only logic if called locally,
-      // but typically now created by backend triggers.
-      // For now, we'll keep it as a local-only optimism if called from frontend,
-      // but in this refined system, we rely on fetchNotifications.
       const newNotification: Notification = {
         id: Date.now().toString(),
         message,
@@ -80,18 +85,14 @@ export function useNotifications() {
         prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
       );
     } catch (error) {
-      console.error("Error marking notification as read", error);
     }
   }, []);
 
   const markAllAsRead = useCallback(async () => {
     try {
-      // Backend call
       await api.patch("/notifications/read-all");
-      // Optimistic update
       setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
     } catch (error) {
-      console.error("Error marking all as read", error);
     }
   }, []);
 
@@ -100,7 +101,6 @@ export function useNotifications() {
       await api.delete(`/notifications/${id}`);
       setNotifications((prev) => prev.filter((n) => n.id !== id));
     } catch (error) {
-      console.error("Error removing notification", error);
     }
   }, []);
 

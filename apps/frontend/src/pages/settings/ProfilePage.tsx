@@ -7,6 +7,8 @@ import { getProfile, updateProfile } from "@/api/users";
 import { Loader2, Save, User, Mail, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import PageLoader from "@/components/ui/PageLoader";
+import { logger } from "@/utils/logger";
+import axios from "axios";
 
 const profileSchema = z
   .object({
@@ -87,7 +89,7 @@ export default function ProfilePage() {
       setValue("email", data.email);
       setInitialData({ name: data.name, email: data.email });
     } catch (error) {
-      console.error("Failed to load profile", error);
+      logger.error("Failed to load profile", error);
       setErrorMessage("Error al cargar los datos del perfil");
     } finally {
       setIsLoading(false);
@@ -95,7 +97,6 @@ export default function ProfilePage() {
   };
 
   const onSubmit = async (data: ProfileFormData) => {
-    // Security Check: if name or email changed, or new password, require currentPassword
     const isSensitiveChange =
       (initialData &&
         (data.name !== initialData.name || data.email !== initialData.email)) ||
@@ -134,15 +135,20 @@ export default function ProfilePage() {
         });
       }
 
-      // Clear password fields
       setValue("currentPassword", "");
       setValue("newPassword", "");
       setValue("confirmPassword", "");
-    } catch (err: any) {
-      console.error("Failed to update profile", err);
-      setErrorMessage(
-        err.response?.data?.message || "Error al actualizar el perfil",
-      );
+    } catch (err: unknown) {
+      logger.error("Failed to update profile", err);
+      const msg = (() => {
+        if (!axios.isAxiosError(err)) return undefined;
+        const data = err.response?.data;
+        if (!data || typeof data !== "object") return undefined;
+        if (!("message" in data)) return undefined;
+        const maybeMessage = (data as { message?: unknown }).message;
+        return typeof maybeMessage === "string" ? maybeMessage : undefined;
+      })();
+      setErrorMessage(msg ?? "Error al actualizar el perfil");
     } finally {
       setIsSaving(false);
     }

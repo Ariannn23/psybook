@@ -8,16 +8,18 @@ import type {
 
 export const getServices = async () => {
   const { data } = await api.get<ApiResponse<Service[]>>("/services");
-  return data.data;
+  return data.data ?? [];
 };
 
 export const getService = async (id: string) => {
   const { data } = await api.get<ApiResponse<Service>>(`/services/${id}`);
+  if (!data.data) throw new Error("Servicio no encontrado");
   return data.data;
 };
 
 export const createService = async (service: CreateServiceInput) => {
   const { data } = await api.post<ApiResponse<Service>>("/services", service);
+  if (!data.data) throw new Error("No se pudo crear el servicio");
   return data.data;
 };
 
@@ -29,6 +31,7 @@ export const updateService = async (
     `/services/${id}`,
     service,
   );
+  if (!data.data) throw new Error("No se pudo actualizar el servicio");
   return data.data;
 };
 

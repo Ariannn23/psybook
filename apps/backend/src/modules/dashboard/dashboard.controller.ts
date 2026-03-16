@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import * as dashboardService from "./dashboard.service";
+import { createError } from "../../middlewares/error.middleware";
 
 export async function getDashboardStats(
   req: Request,
@@ -7,12 +8,11 @@ export async function getDashboardStats(
   next: NextFunction,
 ) {
   try {
-    // @ts-ignore
-    const userId = req.user.id;
+    const userId = req.user?.id;
+    if (!userId) throw createError("No autorizado", 401);
     const data = await dashboardService.getDashboardStats(userId);
     res.json({ success: true, data });
   } catch (error) {
-    console.error("DEBUG: Dashboard stats error:", error);
     next(error);
   }
 }

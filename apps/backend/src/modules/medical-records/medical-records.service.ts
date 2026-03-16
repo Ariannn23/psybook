@@ -33,9 +33,12 @@ export async function createMedicalRecord(
   });
 }
 
-export async function getMedicalRecordsByPatient(patientId: string) {
+export async function getMedicalRecordsByPatient(
+  patientId: string,
+  userId: string,
+) {
   return prisma.medicalRecord.findMany({
-    where: { patientId },
+    where: { patientId, userId },
     orderBy: { createdAt: "desc" },
     include: {
       user: {

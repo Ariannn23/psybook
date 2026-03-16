@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import type { SVGProps } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -23,10 +24,11 @@ import type { MedicalRecord } from "@/types/medical-records";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 import PageLoader from "@/components/ui/PageLoader";
+import { logger } from "@/utils/logger";
+import axios from "axios";
 
 const noteSchema = z.object({
   content: z.string().min(1, "Note cannot be empty"),
-  attachments: z.any().optional(),
 });
 
 type NoteFormData = z.infer<typeof noteSchema>;
@@ -35,7 +37,6 @@ interface MedicalRecordTimelineProps {
   patientId: string;
 }
 
-// Función para capitalizar la primera letra
 function capitalize(str: string): string {
   if (!str) return str;
   return str.charAt(0).toUpperCase() + str.slice(1);
@@ -69,7 +70,7 @@ export default function MedicalRecordTimeline({
       const data = await getMedicalRecordsByPatient(patientId);
       setRecords(data);
     } catch (err) {
-      console.error("Failed to fetch medical records", err);
+      logger.error("Failed to fetch medical records", err);
     } finally {
       setIsLoading(false);
     }
@@ -84,13 +85,20 @@ export default function MedicalRecordTimeline({
         content: data.content,
         attachments: selectedFiles,
       });
-      // Prepend new record
       setRecords([newRecord, ...records]);
       reset();
       setSelectedFiles([]);
-    } catch (err: any) {
-      console.error("Failed to create record", err);
-      setError(err.response?.data?.message || "Failed to save note.");
+    } catch (err: unknown) {
+      logger.error("Failed to create record", err);
+      const msg = (() => {
+        if (!axios.isAxiosError(err)) return undefined;
+        const data = err.response?.data;
+        if (!data || typeof data !== "object") return undefined;
+        if (!("message" in data)) return undefined;
+        const maybeMessage = (data as { message?: unknown }).message;
+        return typeof maybeMessage === "string" ? maybeMessage : undefined;
+      })();
+      setError(msg ?? "Failed to save note.");
     } finally {
       setIsSubmitting(false);
     }
@@ -101,15 +109,14 @@ export default function MedicalRecordTimeline({
     try {
       await deleteMedicalRecord(id);
       setRecords(records.filter((r) => r.id !== id));
-    } catch (err: any) {
-      console.error("Failed to delete record", err);
-      alert(err.response?.data?.message || "Failed to delete note.");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to delete note.";
+      alert(message);
     }
   };
 
   return (
     <div className="space-y-12 animate-fade-in">
-      {/* Add Clinical Note Section */}
       <div className="bg-white rounded-4xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden relative">
         <div className="p-8">
           <h3 className="text-2xl font-black text-slate-900 mb-6 flex items-center gap-3">
@@ -150,7 +157,6 @@ export default function MedicalRecordTimeline({
               </p>
             )}
 
-            {/* File Selection Display */}
             {selectedFiles.length > 0 && (
               <div className="flex flex-wrap gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
                 {selectedFiles.map((file, index) => (
@@ -224,7 +230,6 @@ export default function MedicalRecordTimeline({
         </div>
       </div>
 
-      {/* History Section */}
       <div className="space-y-8">
         <div className="flex items-center gap-4 px-2">
           <div className="p-3 bg-white shadow-sm border border-slate-100 rounded-2xl">
@@ -251,7 +256,6 @@ export default function MedicalRecordTimeline({
           </div>
         ) : (
           <div className="relative ml-10 space-y-12">
-            {/* Main Vertical Line */}
             <div className="absolute left-0 top-4 bottom-4 w-1 bg-linear-to-b from-emerald-500 via-slate-100 to-transparent rounded-full" />
 
             {records.map((record, index) => (
@@ -260,7 +264,6 @@ export default function MedicalRecordTimeline({
                 className="relative group animate-slide-up"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                {/* Dot */}
                 <div className="absolute left-[-10px] top-6 h-6 w-6 rounded-full border-4 border-white bg-emerald-500 shadow-lg shadow-emerald-200 group-hover:scale-125 transition-transform duration-300 z-10" />
 
                 <div className="ml-10 bg-white rounded-4xl p-8 border border-slate-100 shadow-xl shadow-slate-200/40 hover:shadow-emerald-100/40 hover:border-emerald-100 transition-all duration-500">
@@ -298,7 +301,6 @@ export default function MedicalRecordTimeline({
                     {record.content}
                   </div>
 
-                  {/* Premium Attachments Display */}
                   {record.attachments && record.attachments.length > 0 && (
                     <div className="mt-8 pt-6 border-t border-slate-50 flex flex-wrap gap-4">
                       {record.attachments.map((filename, idx) => {
@@ -361,7 +363,7 @@ export default function MedicalRecordTimeline({
   );
 }
 
-function SaveIcon(props: any) {
+function SaveIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}

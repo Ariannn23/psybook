@@ -11,6 +11,8 @@ import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import api from "@/api/axios";
 import PageLoader from "@/components/ui/PageLoader";
+import { logger } from "@/utils/logger";
+import axios from "axios";
 
 interface User {
   id: string;
@@ -38,9 +40,17 @@ export default function UsersPage() {
       setError("");
       const response = await api.get("/users");
       setUsers(response.data.data);
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Error al cargar usuarios");
-      console.error("Failed to fetch users", err);
+    } catch (err: unknown) {
+      logger.error("Failed to fetch users", err);
+      const msg = (() => {
+        if (!axios.isAxiosError(err)) return undefined;
+        const data = err.response?.data;
+        if (!data || typeof data !== "object") return undefined;
+        if (!("message" in data)) return undefined;
+        const maybeMessage = (data as { message?: unknown }).message;
+        return typeof maybeMessage === "string" ? maybeMessage : undefined;
+      })();
+      setError(msg ?? "Error al cargar usuarios");
     } finally {
       setIsLoading(false);
     }
@@ -58,8 +68,16 @@ export default function UsersPage() {
     try {
       await api.delete(`/users/${userId}`);
       setUsers(users.filter((u) => u.id !== userId));
-    } catch (err: any) {
-      alert(err.response?.data?.message || "Error al eliminar usuario");
+    } catch (err: unknown) {
+      const msg = (() => {
+        if (!axios.isAxiosError(err)) return undefined;
+        const data = err.response?.data;
+        if (!data || typeof data !== "object") return undefined;
+        if (!("message" in data)) return undefined;
+        const maybeMessage = (data as { message?: unknown }).message;
+        return typeof maybeMessage === "string" ? maybeMessage : undefined;
+      })();
+      alert(msg ?? "Error al eliminar usuario");
     }
   };
 

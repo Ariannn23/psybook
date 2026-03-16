@@ -28,8 +28,9 @@ import WeeklyView from "@/components/appointments/WeeklyView";
 import AppointmentForm from "@/components/appointments/AppointmentForm";
 import PageLoader from "@/components/ui/PageLoader";
 import StatusFilter from "@/components/ui/StatusFilter";
+import { logger } from "@/utils/logger";
+import axios from "axios";
 
-// Función para formatear fecha sin conversión de zona horaria
 function formatDateWithoutTimezone(dateString: string): string {
   const dateObj = new Date(dateString);
   const year = dateObj.getUTCFullYear();
@@ -43,7 +44,6 @@ function formatDateWithoutTimezone(dateString: string): string {
   }).format(new Date(`${year}-${month}-${day}T00:00:00`));
 }
 
-// Función para extraer fecha en formato YYYY-MM-DD desde ISO string
 function getDateStringFromISO(dateString: string): string {
   const dateObj = new Date(dateString);
   const year = dateObj.getUTCFullYear();
@@ -52,7 +52,6 @@ function getDateStringFromISO(dateString: string): string {
   return `${year}-${month}-${day}`;
 }
 
-// Función para truncar notas
 function truncateNotes(
   notes: string | null | undefined,
   maxLength: number = 50,
@@ -93,7 +92,7 @@ export default function AppointmentsPage() {
       const data = await getAppointments();
       setAppointments(data);
     } catch (error) {
-      console.error("Failed to fetch appointments", error);
+      logger.error("Failed to fetch appointments", error);
     } finally {
       setIsLoading(false);
     }
@@ -106,12 +105,10 @@ export default function AppointmentsPage() {
   useEffect(() => {
     let filtered = [...appointments];
 
-    // Filter by status
     if (statusFilter !== "all") {
       filtered = filtered.filter((apt) => apt.status === statusFilter);
     }
 
-    // Filter by search query
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(
@@ -132,7 +129,7 @@ export default function AppointmentsPage() {
         prev.map((apt) => (apt.id === id ? updated : apt)),
       );
     } catch (error) {
-      console.error("Failed to update status", error);
+      logger.error("Failed to update status", error);
     }
   };
 
@@ -140,13 +137,11 @@ export default function AppointmentsPage() {
     if (!sessionToConfirm) return;
 
     try {
-      // 1. Update appointment status to COMPLETED and save notes
       const updatedApt = await updateAppointment(sessionToConfirm.id, {
         status: AppointmentStatus.COMPLETED,
         notes: notes.trim() || undefined,
       });
 
-      // 2. Create medical record if notes provided
       if (notes.trim()) {
         await createMedicalRecord({
           patientId: sessionToConfirm.patientId,
@@ -154,26 +149,23 @@ export default function AppointmentsPage() {
         });
       }
 
-      // 3. Update local state
       setAppointments((prev) =>
         prev.map((apt) => (apt.id === sessionToConfirm.id ? updatedApt : apt)),
       );
 
-      // 4. Close modal
       setSessionToConfirm(null);
 
-      // 5. Navigate to new appointment if requested
       if (scheduleNext) {
         navigate(
           `/dashboard/appointments/new?patientId=${sessionToConfirm.patientId}`,
         );
       }
     } catch (error) {
-      console.error("Failed to finish session", error);
+      logger.error("Failed to finish session", error);
     }
   };
 
-  const onUpdateSubmit = async (data: any) => {
+  const onUpdateSubmit = async (data: Record<string, unknown>) => {
     if (!editingAppointment) return;
     try {
       const updated = await updateAppointment(editingAppointment.id, data);
@@ -182,14 +174,17 @@ export default function AppointmentsPage() {
       );
       setIsModalOpen(false);
       setEditingAppointment(null);
-    } catch (error: any) {
-      console.error("Failed to update appointment", error);
-      // We need a way to pass this error to the form, but the form is inside the modal.
-      // For now, let's just alert or log it, as the modal might close or we need state.
-      // Better: Add error state to this component and pass it to AppointmentForm.
-      setUpdateError(
-        error.response?.data?.message || "Error al actualizar la cita",
-      );
+    } catch (error: unknown) {
+      logger.error("Failed to update appointment", error);
+      const msg = (() => {
+        if (!axios.isAxiosError(error)) return undefined;
+        const data = error.response?.data;
+        if (!data || typeof data !== "object") return undefined;
+        if (!("message" in data)) return undefined;
+        const maybeMessage = (data as { message?: unknown }).message;
+        return typeof maybeMessage === "string" ? maybeMessage : undefined;
+      })();
+      setUpdateError(msg ?? "Error al actualizar la cita");
     }
   };
 
@@ -290,7 +285,6 @@ export default function AppointmentsPage() {
         </div>
       </div>
 
-      {/* Filters & Content Wrap */}
       <div className="bg-white rounded-4xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
         {(viewMode === "list" || viewMode === "calendar") && (
           <div className="p-6 border-b border-slate-50 bg-slate-50/30 flex flex-col md:flex-row gap-4 justify-between items-center">
@@ -523,7 +517,6 @@ export default function AppointmentsPage() {
                   </div>
                 </div>
 
-                {/* Pagination Controls */}
                 <div className="flex items-center justify-between px-6 py-4 border-t border-slate-200 bg-slate-50 rounded-b-xl shadow border border-slate-200 border-t-0">
                   <div className="text-sm text-slate-600">
                     Mostrando {(currentPage - 1) * itemsPerPage + 1} a{" "}
@@ -594,11 +587,9 @@ export default function AppointmentsPage() {
         )}
       </div>
 
-      {/* View Modal */}
       {viewingAppointment && (
         <div className="fixed inset-0 z-60 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-fade-in text-slate-600">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden border border-slate-200 animate-slide-in">
-            {/* Modal Header - Neutral Minimalist */}
             <div className="bg-slate-50/50 p-6 border-b border-slate-100 relative overflow-hidden">
               <div className="flex items-center justify-between relative z-10">
                 <div className="flex items-center gap-3">
@@ -624,10 +615,8 @@ export default function AppointmentsPage() {
               </div>
             </div>
 
-            {/* Modal Body */}
             <div className="p-8 space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {/* Column 1: Date & Time */}
                 <div className="space-y-6">
                   <div className="p-4 bg-slate-50/50 rounded-xl border border-slate-100/50 shadow-sm">
                     <div className="flex items-center gap-2 text-slate-500 mb-2">
@@ -655,7 +644,6 @@ export default function AppointmentsPage() {
                   </div>
                 </div>
 
-                {/* Column 2 & 3: Patient, Service, Status */}
                 <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-8">
                   <div className="space-y-6">
                     <div className="group">
@@ -747,7 +735,6 @@ export default function AppointmentsPage() {
               </div>
             </div>
 
-            {/* Footer */}
             <div className="px-8 py-6 bg-slate-50/30 border-t border-slate-100 flex justify-end">
               <button
                 onClick={closeViewModal}
@@ -760,7 +747,6 @@ export default function AppointmentsPage() {
         </div>
       )}
 
-      {/* Edit Modal */}
       {isModalOpen && editingAppointment && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -780,7 +766,6 @@ export default function AppointmentsPage() {
           </div>
         </div>
       )}
-      {/* Session Confirmation Modal */}
       {sessionToConfirm && (
         <SessionConfirmationModal
           appointment={sessionToConfirm}

@@ -1,44 +1,43 @@
-import { Request, Response } from "express";
-import { prisma } from "../../config/db";
+import { Request, Response, NextFunction } from "express";
+import prisma from "../../config/db";
+import { createError } from "../../middlewares/error.middleware";
 
-// GET /api/notifications - Obtener notificaciones del usuario actual
-export async function getAll(req: Request, res: Response) {
+function requireUserId(req: Request): string {
+  const userId = req.user?.id;
+  if (!userId) throw createError("No autorizado", 401);
+  return userId;
+}
+
+export async function getAll(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
   try {
-    const userId = req.user?.id;
-
-    if (!userId) {
-      return res.status(401).json({ success: false, message: "No autorizado" });
-    }
-
+    const userId = requireUserId(req);
     const notifications = await prisma.notification.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
       take: 20,
     });
-
-    return res.json(notifications);
+    res.json({ success: true, data: notifications });
   } catch (error) {
-    console.error("Error fetching notifications:", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error al obtener notificaciones" });
+    next(error);
   }
 }
 
-// Mark notification as read
-export async function markAsRead(req: Request, res: Response) {
+export async function markAsRead(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
   try {
+    const userId = requireUserId(req);
     const { id } = req.params;
-    const userId = req.user?.id;
 
-    const notification = await prisma.notification.findUnique({
-      where: { id },
-    });
-
+    const notification = await prisma.notification.findUnique({ where: { id } });
     if (!notification || notification.userId !== userId) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Notificación no encontrada" });
+      throw createError("Notificación no encontrada", 404);
     }
 
     const updated = await prisma.notification.update({
@@ -46,65 +45,46 @@ export async function markAsRead(req: Request, res: Response) {
       data: { isRead: true },
     });
 
-    return res.json(updated);
+    res.json({ success: true, data: updated });
   } catch (error) {
-    console.error("Error updating notification:", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error al actualizar notificación" });
+    next(error);
   }
 }
 
-// DELETE /api/notifications/:id - Eliminar notificación
-export async function remove(req: Request, res: Response) {
+export async function markAllAsRead(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
   try {
-    const { id } = req.params;
-    const userId = req.user?.id;
-
-    const notification = await prisma.notification.findUnique({
-      where: { id },
-    });
-
-    if (!notification || notification.userId !== userId) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Notificación no encontrada" });
-    }
-
-    await prisma.notification.delete({
-      where: { id },
-    });
-
-    return res.json({ success: true, message: "Notificación eliminada" });
-  } catch (error) {
-    console.error("Error deleting notification:", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error al eliminar notificación" });
-  }
-}
-// Mark all notifications as read for current user
-export async function markAllAsRead(req: Request, res: Response) {
-  try {
-    const userId = req.user?.id;
-
-    if (!userId) {
-      return res.status(401).json({ success: false, message: "No autorizado" });
-    }
-
+    const userId = requireUserId(req);
     await prisma.notification.updateMany({
       where: { userId, isRead: false },
       data: { isRead: true },
     });
-
-    return res.json({
-      success: true,
-      message: "Todas las notificaciones marcadas como leídas",
-    });
+    res.json({ success: true });
   } catch (error) {
-    console.error("Error marking all notifications as read:", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Error al actualizar notificaciones" });
+    next(error);
+  }
+}
+
+export async function remove(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const userId = requireUserId(req);
+    const { id } = req.params;
+
+    const notification = await prisma.notification.findUnique({ where: { id } });
+    if (!notification || notification.userId !== userId) {
+      throw createError("Notificación no encontrada", 404);
+    }
+
+    await prisma.notification.delete({ where: { id } });
+    res.json({ success: true });
+  } catch (error) {
+    next(error);
   }
 }

@@ -36,7 +36,6 @@ export default function SessionConfirmationModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
       <div className="bg-white rounded-4xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-100 flex flex-col max-h-[90vh]">
-        {/* Header */}
         <div className="p-6 bg-slate-50 border-b border-slate-100 flex justify-between items-center">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-emerald-100 rounded-xl">
@@ -60,7 +59,6 @@ export default function SessionConfirmationModal({
           </button>
         </div>
 
-        {/* Content */}
         <div className="p-8 space-y-8 overflow-y-auto">
           {step === 1 ? (
             <div className="space-y-6 animate-slide-in">
@@ -118,7 +116,6 @@ export default function SessionConfirmationModal({
           )}
         </div>
 
-        {/* Footer */}
         <div className="p-6 border-t border-slate-50 bg-slate-50/30 flex gap-3">
           {step === 1 ? (
             <>

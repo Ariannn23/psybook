@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
+import * as jwt from "jsonwebtoken";
 import { env } from "../config/env";
-import { UserPayload } from "../utils/types";
+import { UserPayload } from "@psybook/shared";
 
 declare global {
   namespace Express {

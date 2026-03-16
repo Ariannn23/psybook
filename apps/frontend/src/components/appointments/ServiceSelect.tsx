@@ -10,6 +10,7 @@ import {
 import { cn } from "@/lib/utils";
 import { getServices } from "@/api/services";
 import type { Service } from "@/types/services";
+import { logger } from "@/utils/logger";
 
 interface ServiceSelectProps {
   value?: string;
@@ -32,7 +33,7 @@ export default function ServiceSelect({
         const data = await getServices();
         setServices(data.filter((s) => s.isActive));
       } catch (err) {
-        console.error("Failed to fetch services", err);
+        logger.error("Failed to fetch services", err);
       } finally {
         setIsLoading(false);
       }

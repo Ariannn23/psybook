@@ -11,6 +11,7 @@ import { getSchedules } from "@/api/schedules";
 import { getServices } from "@/api/services";
 import type { Schedule } from "@/types/schedules";
 import type { Service } from "@/types/services";
+import { logger } from "@/utils/logger";
 
 const appointmentSchema = z
   .object({
@@ -87,7 +88,7 @@ export default function AppointmentForm({
         const data = await getSchedules();
         setSchedules(data);
       } catch (error) {
-        console.error("Failed to fetch schedules", error);
+        logger.error("Failed to fetch schedules", error);
       }
     };
     fetchSchedules();
@@ -99,37 +100,31 @@ export default function AppointmentForm({
         const data = await getServices();
         setServices(data.filter((s) => s.isActive));
       } catch (error) {
-        console.error("Failed to fetch services", error);
+        logger.error("Failed to fetch services", error);
       }
     };
     fetchServices();
   }, []);
 
-  // Auto-calculate endTime when service or startTime changes
   useEffect(() => {
     if (!selectedServiceId || !selectedStartTime) return;
 
     const service = services.find((s) => s.id === selectedServiceId);
     if (!service) return;
 
-    // Parse start time
     const [startH, startM] = selectedStartTime.split(":").map(Number);
     const startTotalMinutes = startH * 60 + startM;
 
-    // Add service duration
     const endTotalMinutes = startTotalMinutes + service.duration;
 
-    // Convert back to HH:MM format
     const endH = Math.floor(endTotalMinutes / 60);
     const endM = endTotalMinutes % 60;
     const endTime = `${String(endH).padStart(2, "0")}:${String(endM).padStart(2, "0")}`;
 
-    // Set the endTime value
     setValue("endTime", endTime);
   }, [selectedServiceId, selectedStartTime, services, setValue]);
 
   const validateSchedule = (data: AppointmentFormData) => {
-    // Parse date string consistently: YYYY-MM-DD to get day of week in UTC
     const [year, month, day] = data.date.split("-").map(Number);
     const dateObj = new Date(Date.UTC(year, month - 1, day));
     const dayOfWeek = dateObj.getUTCDay();
@@ -172,7 +167,6 @@ export default function AppointmentForm({
     await onSubmit(data);
   };
 
-  // Re-validate when relevant fields change
   useEffect(() => {
     if (selectedDate && selectedStartTime && selectedEndTime) {
       setScheduleError(null);

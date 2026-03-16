@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import PageLoader from "@/components/ui/PageLoader";
+import { logger } from "@/utils/logger";
 
 const serviceSchema = z.object({
   name: z.string().min(3, "El nombre debe tener al menos 3 caracteres"),
@@ -57,7 +58,7 @@ export default function ServicesPage() {
       const data = await getServices();
       setServices(data);
     } catch (err) {
-      console.error("Failed to fetch services", err);
+      logger.error("Failed to fetch services", err);
     } finally {
       setIsLoading(false);
     }
@@ -99,7 +100,7 @@ export default function ServicesPage() {
       }
       closeModal();
     } catch (err) {
-      console.error("Failed to save service", err);
+      logger.error("Failed to save service", err);
       setError("Error al guardar el servicio. Inténtalo de nuevo.");
     } finally {
       setIsSubmitting(false);
@@ -113,7 +114,7 @@ export default function ServicesPage() {
       await deleteService(id);
       setServices(services.filter((s) => s.id !== id));
     } catch (err) {
-      console.error("Failed to delete service", err);
+      logger.error("Failed to delete service", err);
       alert("Error al eliminar el servicio");
     }
   };
@@ -153,16 +154,15 @@ export default function ServicesPage() {
               key={service.id}
               className="group relative overflow-hidden bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col gap-4 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 hover:border-emerald-200/50"
             >
-              {/* Decorative Gradient Background on Hover */}
               <div className="absolute inset-0 bg-linear-to-br from-transparent via-transparent to-emerald-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
-              {/* Decorative Circle */}
               <div className="absolute -right-6 -top-6 w-24 h-24 bg-emerald-50 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-all duration-500 group-hover:scale-150 pointer-events-none" />
 
               <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-200 z-10 translate-x-2 group-hover:translate-x-0">
                 <button
                   className="bg-white/90 backdrop-blur-sm text-emerald-600 hover:bg-emerald-50 p-2 rounded-lg shadow-sm border border-slate-100 transition-colors cursor-pointer"
                   title="Editar"
+                  aria-label="Editar servicio"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleEdit(service);
@@ -174,6 +174,7 @@ export default function ServicesPage() {
                   onClick={(e) => handleDelete(service.id, e)}
                   className="bg-white/90 backdrop-blur-sm text-slate-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg shadow-sm border border-slate-100 transition-colors cursor-pointer"
                   title="Eliminar"
+                  aria-label="Eliminar servicio"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>
@@ -216,7 +217,7 @@ export default function ServicesPage() {
         </div>
       )}
 
-      {/* Create/Edit Service Modal */}
+ 
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300">
           <div className="bg-white rounded-4xl shadow-2xl max-w-md w-full overflow-hidden relative border border-slate-100 animate-in zoom-in-95 duration-300">
@@ -236,6 +237,7 @@ export default function ServicesPage() {
                   <button
                     onClick={closeModal}
                     className="p-2 hover:bg-slate-50 rounded-xl text-slate-400 hover:text-slate-600 transition-all cursor-pointer"
+                    aria-label="Cerrar modal"
                   >
                     <X className="w-5 h-5" />
                   </button>

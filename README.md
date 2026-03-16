@@ -1,353 +1,241 @@
-# STACK OFICIAL
-
-## Frontend
-
-* React
-* TypeScript
-* Tailwind CSS
-* ShadCN UI
-* React Hook Form
-* Zod
-* Axios
-* React Router
-* Zustand
-* FullCalendar
-
-## Backend
-
-* Node.js
-* Express
-* TypeScript
-* Prisma ORM
-* PostgreSQL
-* JWT
-* Bcrypt
-* Nodemailer
-* Zod
-* Helmet
-* CORS
-
-# ARQUITECTURA PRO
-
-<pre class="overflow-visible! px-0!" data-start="651" data-end="811"><div class="contain-inline-size rounded-2xl corner-superellipse/1.1 relative bg-token-sidebar-surface-primary"><div class="sticky top-[calc(var(--sticky-padding-top)+9*var(--spacing))]"><div class="absolute end-0 bottom-0 flex h-9 items-center pe-2"><div class="bg-token-bg-elevated-secondary text-token-text-secondary flex items-center gap-4 rounded-sm px-2 font-sans text-xs"></div></div></div><div class="overflow-y-auto p-4" dir="ltr"><code class="whitespace-pre!"><span><span>monorepo/
- ├─ apps/
- │   ├─ frontend/
- │   └─ backend/
- ├─ packages/
- │   ├─ shared-types/
- │   └─ config/
- ├─ docker-compose.yml
- ├─ .env
- └─ README.md
-</span></span></code></div></div></pre>
-
----
-
-# ESTRUCTURA BACKEND PRO
-
-<pre class="overflow-visible! px-0!" data-start="847" data-end="1332"><div class="contain-inline-size rounded-2xl corner-superellipse/1.1 relative bg-token-sidebar-surface-primary"><div class="sticky top-[calc(var(--sticky-padding-top)+9*var(--spacing))]"><div class="absolute end-0 bottom-0 flex h-9 items-center pe-2"><div class="bg-token-bg-elevated-secondary text-token-text-secondary flex items-center gap-4 rounded-sm px-2 font-sans text-xs"></div></div></div><div class="overflow-y-auto p-4" dir="ltr"><code class="whitespace-pre!"><span><span>backend/src
- ├─ config/
- │   ├─ db.ts
- │   ├─ env.ts
- │   └─ mail.ts
- ├─ modules/
- │   ├─ auth/
- │   │   ├─ auth.controller.ts
- │   │   ├─ auth.service.ts
- │   │   ├─ auth.routes.ts
- │   │   └─ auth.</span><span>schema</span><span>.ts
- │   ├─ users/
- │   ├─ patients/
- │   ├─ appointments/
- │   ├─ services/
- │   ├─ schedules/
- │   ├─ notifications/
- │   └─ dashboard/
- ├─ middlewares/
- │   ├─ auth.middleware.ts
- │   ├─ </span><span>role</span><span>.middleware.ts
- │   └─ error.middleware.ts
- ├─ utils/
- ├─ app.ts
- └─ </span><span>server</span><span>.ts
-</span></span></code></div></div></pre>
-
----
-
-# ESTRUCTURA FRONTEND PRO
-
-<pre class="overflow-visible! px-0!" data-start="1369" data-end="1605"><div class="contain-inline-size rounded-2xl corner-superellipse/1.1 relative bg-token-sidebar-surface-primary"><div class="sticky top-[calc(var(--sticky-padding-top)+9*var(--spacing))]"><div class="absolute end-0 bottom-0 flex h-9 items-center pe-2"><div class="bg-token-bg-elevated-secondary text-token-text-secondary flex items-center gap-4 rounded-sm px-2 font-sans text-xs"></div></div></div><div class="overflow-y-auto p-4" dir="ltr"><code class="whitespace-pre!"><span><span>frontend/src
- ├─ api/
- ├─ components/
- ├─ layouts/
- ├─ pages/
- │   ├─ </span><span>public</span><span>/
- │   ├─ auth/
- │   ├─ </span><span>admin</span><span>/
- │   ├─ patient/
- │   └─ psychologist/
- ├─ hooks/
- ├─ store/
- ├─ </span><span>schemas</span><span>/
- ├─ routes/
- ├─ utils/
- ├─ App.tsx
- └─ main.tsx
-</span></span></code></div></div></pre>
-
----
-
-# PRISMA SCHEMA (BASE REAL)
-
-<pre class="overflow-visible! px-0!" data-start="1644" data-end="2978"><div class="contain-inline-size rounded-2xl corner-superellipse/1.1 relative bg-token-sidebar-surface-primary"><div class="sticky top-[calc(var(--sticky-padding-top)+9*var(--spacing))]"><div class="absolute end-0 bottom-0 flex h-9 items-center pe-2"><div class="bg-token-bg-elevated-secondary text-token-text-secondary flex items-center gap-4 rounded-sm px-2 font-sans text-xs"></div></div></div><div class="overflow-y-auto p-4" dir="ltr"><code class="whitespace-pre! language-prisma"><span>model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  password  String
-  role      Role
-  createdAt DateTime @default(now())
-  schedules Schedule[]
-  appointments Appointment[]
-}
-
-model Patient {
-  id        String   @id @default(uuid())
-  name      String
-  email     String
-  phone     String
-  createdAt DateTime @default(now())
-  appointments Appointment[]
-}
-
-model Service {
-  id        String   @id @default(uuid())
-  name      String
-  duration  Int
-  price     Float
-  appointments Appointment[]
-}
-
-model Schedule {
-  id        String   @id @default(uuid())
-  userId    String
-  day       Int
-  startTime String
-  endTime   String
-  user      User @relation(fields: [userId], references: [id])
-}
-
-model Appointment {
-  id         String   @id @default(uuid())
-  patientId  String
-  userId     String
-  serviceId  String
-  date       DateTime
-  startTime  String
-  endTime    String
-  status     Status
-  reason     String
-  createdAt  DateTime @default(now())
-
-  patient Patient @relation(fields: [patientId], references: [id])
-  user    User    @relation(fields: [userId], references: [id])
-  service Service @relation(fields: [serviceId], references: [id])
-}
-
-enum Role {
-  ADMIN
-  PSYCHOLOGIST
-}
-
-enum Status {
-  PENDING
-  CONFIRMED
-  CANCELLED
-  COMPLETED
-}</span></code></div></div></pre>
-
-
-# API ENDPOINTS BASE
-
-## Auth
-
-<pre class="overflow-visible! px-0!" data-start="3018" data-end="3082"><div class="contain-inline-size rounded-2xl corner-superellipse/1.1 relative bg-token-sidebar-surface-primary"><div class="sticky top-[calc(var(--sticky-padding-top)+9*var(--spacing))]"><div class="absolute end-0 bottom-0 flex h-9 items-center pe-2"><div class="bg-token-bg-elevated-secondary text-token-text-secondary flex items-center gap-4 rounded-sm px-2 font-sans text-xs"></div></div></div><div class="overflow-y-auto p-4" dir="ltr"><code class="whitespace-pre!"><span><span>POST   /auth/register
-POST   /auth/login
-GET    /auth/me
-</span></span></code></div></div></pre>
-
-## Patients
-
-<pre class="overflow-visible! px-0!" data-start="3096" data-end="3200"><div class="contain-inline-size rounded-2xl corner-superellipse/1.1 relative bg-token-sidebar-surface-primary"><div class="sticky top-[calc(var(--sticky-padding-top)+9*var(--spacing))]"><div class="absolute end-0 bottom-0 flex h-9 items-center pe-2"><div class="bg-token-bg-elevated-secondary text-token-text-secondary flex items-center gap-4 rounded-sm px-2 font-sans text-xs"></div></div></div><div class="overflow-y-auto p-4" dir="ltr"><code class="whitespace-pre!"><span><span>POST   /patients
-GET    /patients
-GET    /patients/:</span><span>id</span><span>
-PUT    /patients/:</span><span>id</span><span>
-DELETE /patients/:</span><span>id</span><span>
-</span></span></code></div></div></pre>
-
-## Appointments
-
-<pre class="overflow-visible! px-0!" data-start="3218" data-end="3342"><div class="contain-inline-size rounded-2xl corner-superellipse/1.1 relative bg-token-sidebar-surface-primary"><div class="sticky top-[calc(var(--sticky-padding-top)+9*var(--spacing))]"><div class="absolute end-0 bottom-0 flex h-9 items-center pe-2"><div class="bg-token-bg-elevated-secondary text-token-text-secondary flex items-center gap-4 rounded-sm px-2 font-sans text-xs"></div></div></div><div class="overflow-y-auto p-4" dir="ltr"><code class="whitespace-pre!"><span><span>POST   /appointments
-GET    /appointments
-GET    /appointments/:</span><span>id</span><span>
-PUT    /appointments/:</span><span>id</span><span>
-DELETE /appointments/:</span><span>id</span><span>
-</span></span></code></div></div></pre>
-
-## Services
-
-<pre class="overflow-visible! px-0!" data-start="3356" data-end="3439"><div class="contain-inline-size rounded-2xl corner-superellipse/1.1 relative bg-token-sidebar-surface-primary"><div class="sticky top-[calc(var(--sticky-padding-top)+9*var(--spacing))]"><div class="absolute end-0 bottom-0 flex h-9 items-center pe-2"><div class="bg-token-bg-elevated-secondary text-token-text-secondary flex items-center gap-4 rounded-sm px-2 font-sans text-xs"></div></div></div><div class="overflow-y-auto p-4" dir="ltr"><code class="whitespace-pre!"><span><span>POST   /services
-GET    /services
-PUT    /services/:</span><span>id</span><span>
-DELETE /services/:</span><span>id</span><span>
-</span></span></code></div></div></pre>
-
-## Schedules
-
-<pre class="overflow-visible! px-0!" data-start="3454" data-end="3497"><div class="contain-inline-size rounded-2xl corner-superellipse/1.1 relative bg-token-sidebar-surface-primary"><div class="sticky top-[calc(var(--sticky-padding-top)+9*var(--spacing))]"><div class="absolute end-0 bottom-0 flex h-9 items-center pe-2"><div class="bg-token-bg-elevated-secondary text-token-text-secondary flex items-center gap-4 rounded-sm px-2 font-sans text-xs"></div></div></div><div class="overflow-y-auto p-4" dir="ltr"><code class="whitespace-pre!"><span><span>POST   /schedules
-GET    /schedules
-</span></span></code></div></div></pre>
-
----
-
-# AUTH FLOW PRO
-
-<pre class="overflow-visible! px-0!" data-start="3524" data-end="3637"><div class="contain-inline-size rounded-2xl corner-superellipse/1.1 relative bg-token-sidebar-surface-primary"><div class="sticky top-[calc(var(--sticky-padding-top)+9*var(--spacing))]"><div class="absolute end-0 bottom-0 flex h-9 items-center pe-2"><div class="bg-token-bg-elevated-secondary text-token-text-secondary flex items-center gap-4 rounded-sm px-2 font-sans text-xs"></div></div></div><div class="overflow-y-auto p-4" dir="ltr"><code class="whitespace-pre!"><span><span>Register → Hash </span><span>password</span><span> → JWT
-</span><span>Login</span><span> → </span><span>Validate</span><span> → JWT
-Request → Middleware auth → </span><span>role</span><span></span><span>check</span><span> → controller
-</span></span></code></div></div></pre>
-
----
-
-# EMAIL FLOW
-
-<pre class="overflow-visible! px-0!" data-start="3661" data-end="3761"><div class="contain-inline-size rounded-2xl corner-superellipse/1.1 relative bg-token-sidebar-surface-primary"><div class="sticky top-[calc(var(--sticky-padding-top)+9*var(--spacing))]"><div class="absolute end-0 bottom-0 flex h-9 items-center pe-2"><div class="bg-token-bg-elevated-secondary text-token-text-secondary flex items-center gap-4 rounded-sm px-2 font-sans text-xs"></div></div></div><div class="overflow-y-auto p-4" dir="ltr"><code class="whitespace-pre!"><span><span>Create</span><span> appointment →
-Send email confirmation →
-</span><span>24</span><span>h </span><span>before</span><span> → reminder →
-Cancel → cancel email
-</span></span></code></div></div></pre>
-
----
-
-# DOCKER BASE
-
-<pre class="overflow-visible! px-0!" data-start="3786" data-end="4080"><div class="contain-inline-size rounded-2xl corner-superellipse/1.1 relative bg-token-sidebar-surface-primary"><div class="sticky top-[calc(var(--sticky-padding-top)+9*var(--spacing))]"><div class="absolute end-0 bottom-0 flex h-9 items-center pe-2"><div class="bg-token-bg-elevated-secondary text-token-text-secondary flex items-center gap-4 rounded-sm px-2 font-sans text-xs"></div></div></div><div class="overflow-y-auto p-4" dir="ltr"><code class="whitespace-pre! language-yaml"><span><span>version:</span><span></span><span>"3.8"</span><span>
-</span><span>services:</span><span>
-  </span><span>db:</span><span>
-    </span><span>image:</span><span></span><span>postgres:15</span><span>
-    </span><span>environment:</span><span>
-      </span><span>POSTGRES_DB:</span><span></span><span>psycare</span><span>
-      </span><span>POSTGRES_USER:</span><span></span><span>admin</span><span>
-      </span><span>POSTGRES_PASSWORD:</span><span></span><span>admin</span><span>
-    </span><span>ports:</span><span>
-      </span><span>-</span><span></span><span>"5432:5432"</span><span>
-
-  </span><span>backend:</span><span>
-    </span><span>build:</span><span></span><span>./apps/backend</span><span>
-    </span><span>ports:</span><span>
-      </span><span>-</span><span></span><span>"4000:4000"</span><span>
-    </span><span>depends_on:</span><span>
-      </span><span>-</span><span></span><span>db</span><span>
-</span></span></code></div></div></pre>
-
----
-
-# ENV BASE
-
-<pre class="overflow-visible! px-0!" data-start="4102" data-end="4274"><div class="contain-inline-size rounded-2xl corner-superellipse/1.1 relative bg-token-sidebar-surface-primary"><div class="sticky top-[calc(var(--sticky-padding-top)+9*var(--spacing))]"><div class="absolute end-0 bottom-0 flex h-9 items-center pe-2"><div class="bg-token-bg-elevated-secondary text-token-text-secondary flex items-center gap-4 rounded-sm px-2 font-sans text-xs"></div></div></div><div class="overflow-y-auto p-4" dir="ltr"><code class="whitespace-pre!"><span><span>DATABASE_URL</span><span>=postgresql://admin:admin@localhost:</span><span>5432</span><span>/psycare
-</span><span>JWT_SECRET</span><span>=supersecretkey
-</span><span>PORT</span><span>=</span><span>4000</span><span>
-</span><span>MAIL_HOST</span><span>=smtp.gmail.com
-</span><span>MAIL_USER</span><span>=example@gmail.com
-</span><span>MAIL_PASS</span><span>=pass
-</span></span></code></div></div></pre>
-
----
-
-# ROADMAP PRO
-
-### Sprint 1
-
-* Auth
-* Roles
-* CRUD base
-* DB
-* API
-* Docker
-
-### Sprint 2
-
-* Agenda visual
-* Emails
-* Panel admin
-* Horarios
-
-### Sprint 3
-
-* Dashboard
-* Analytics
-* Pagos
-* SaaS logic
-* Multi-consultorio
-
-# Wireframe lógico (estructura visual)
-
-### Landing:
-
-<pre class="overflow-visible! px-0!" data-start="1849" data-end="1941"><div class="contain-inline-size rounded-2xl corner-superellipse/1.1 relative bg-token-sidebar-surface-primary"><div class="sticky top-[calc(var(--sticky-padding-top)+9*var(--spacing))]"><div class="absolute end-0 bottom-0 flex h-9 items-center pe-2"><div class="bg-token-bg-elevated-secondary text-token-text-secondary flex items-center gap-4 rounded-sm px-2 font-sans text-xs"></div></div></div><div class="overflow-y-auto p-4" dir="ltr"><code class="whitespace-pre!"><span><span>[ Logo ]</span><span>
-</span><span>[ Bienvenida ]</span><span>
-</span><span>[ Info de la consulta ]</span><span>
-</span><span>[ Servicios ]</span><span>
-</span><span>[ Botón AGENDAR CITA ]</span><span>
-</span></span></code></div></div></pre>
-
-### Agendamiento:
-
-<pre class="overflow-visible! px-0!" data-start="1961" data-end="2074"><div class="contain-inline-size rounded-2xl corner-superellipse/1.1 relative bg-token-sidebar-surface-primary"><div class="sticky top-[calc(var(--sticky-padding-top)+9*var(--spacing))]"><div class="absolute end-0 bottom-0 flex h-9 items-center pe-2"><div class="bg-token-bg-elevated-secondary text-token-text-secondary flex items-center gap-4 rounded-sm px-2 font-sans text-xs"></div></div></div><div class="overflow-y-auto p-4" dir="ltr"><code class="whitespace-pre!"><span><span>[ Seleccionar servicio ]</span><span>
-</span><span>[ Calendario ]</span><span>
-</span><span>[ Horas disponibles ]</span><span>
-</span><span>[ Formulario paciente ]</span><span>
-</span><span>[ Botón Confirmar ]</span><span>
-</span></span></code></div></div></pre>
-
-### Panel Admin:
-
-<pre class="overflow-visible! px-0!" data-start="2093" data-end="2265"><div class="contain-inline-size rounded-2xl corner-superellipse/1.1 relative bg-token-sidebar-surface-primary"><div class="sticky top-[calc(var(--sticky-padding-top)+9*var(--spacing))]"><div class="absolute end-0 bottom-0 flex h-9 items-center pe-2"><div class="bg-token-bg-elevated-secondary text-token-text-secondary flex items-center gap-4 rounded-sm px-2 font-sans text-xs"></div></div></div><div class="overflow-y-auto p-4" dir="ltr"><code class="whitespace-pre!"><span><span>[ Sidebar ]
-</span><span>  -</span><span> Dashboard
-</span><span>  -</span><span> Agenda
-</span><span>  -</span><span> Pacientes
-</span><span>  -</span><span> Servicios
-</span><span>  -</span><span> Psicólogos
-</span><span>  -</span><span> Configuración
-
-[ Vista principal ]
-</span><span>  -</span><span> Calendario
-</span><span>  -</span><span> Lista de citas
-</span><span>  -</span><span> Filtros</span></span></code></div></div></pre>
-
-
-# Flujo de usuarios
-
-## Paciente
-
-<pre class="overflow-visible! px-0!" data-start="1443" data-end="1629"><div class="contain-inline-size rounded-2xl corner-superellipse/1.1 relative bg-token-sidebar-surface-primary"><div class="sticky top-[calc(var(--sticky-padding-top)+9*var(--spacing))]"><div class="absolute end-0 bottom-0 flex h-9 items-center pe-2"><div class="bg-token-bg-elevated-secondary text-token-text-secondary flex items-center gap-4 rounded-sm px-2 font-sans text-xs"></div></div></div><div class="overflow-y-auto p-4" dir="ltr"><code class="whitespace-pre!"><span><span>Landing →
-Agendar cita →
-Selecciona servicio →
-Selecciona fecha →
-Selecciona hora disponible →
-Formulario datos →
-Confirmación →
-Email automático →
-Recordatorio →
-Asiste </span><span>a</span><span> sesión
-</span></span></code></div></div></pre>
-
-## Psicólogo/Admin
-
-<pre class="overflow-visible! px-0!" data-start="1653" data-end="1787"><div class="contain-inline-size rounded-2xl corner-superellipse/1.1 relative bg-token-sidebar-surface-primary"><div class="sticky top-[calc(var(--sticky-padding-top)+9*var(--spacing))]"><div class="absolute end-0 bottom-0 flex h-9 items-center pe-2"><div class="bg-token-bg-elevated-secondary text-token-text-secondary flex items-center gap-4 rounded-sm px-2 font-sans text-xs"></div></div></div><div class="overflow-y-auto p-4" dir="ltr"><code class="whitespace-pre!"><span><span>Login →
-Panel →
-Ver agenda →
-Ver citas </span><span>del</span><span> dí</span><span>a</span><span> →
-Confirmar/Cancelar →
-Marcar como atendida →
-Ver historial paciente →
-Reportes</span></span></code></div></div></pre>
+# PsyBook
+
+## Descripción General
+
+PsyBook es un sistema integral de gestión para profesionales de la psicología, diseñado para optimizar el flujo de trabajo clínico y administrativo. La plataforma permite la gestión centralizada de pacientes, citas, historias clínicas y recordatorios automáticos, facilitando la organización del consultorio y mejorando el seguimiento de los tratamientos. El sistema resuelve problemas de fragmentación de información, olvidos en la programación de citas y falta de digitalización en registros clínicos. Está dirigido a psicólogos independientes y clínicas de salud mental. Actualmente, el proyecto se encuentra en estado de desarrollo activo (fase beta).
+
+## Características Principales
+
+- Gestión de Usuarios: Sistema de autenticación y roles (ADMIN, PSYCHOLOGIST).
+- Control de Pacientes: Registro detallado de pacientes con historial de contacto y notas.
+- Agendamiento de Citas: Sistema de reserva de citas con validación de disponibilidad y estados (PENDIENTE, CONFIRMADA, CANCELADA, COMPLETADA).
+- Historias Clínicas: Registro digital de sesiones, evolución del paciente y posibilidad de adjuntar documentos.
+- Panel de Control (Dashboard): Visualización de métricas clave, próximas citas y alertas de notificaciones.
+- Configuración de Horarios: Gestión flexible de disponibilidad horaria por profesional.
+- Servicios Personalizados: Definición de tipos de consulta, duraciones y precios.
+- Notificaciones: Sistema interno de alertas y envío de correos electrónicos informativos.
+- Reservas Públicas: Página externa para que los pacientes puedan solicitar citas directamente.
+
+## Tecnologías Utilizadas
+
+### Frontend
+
+- Framework: React 19.2.0
+- Herramienta de Construcción: Vite 7.3.1
+- Gestión de Rutas: React Router DOM 7.13.0
+- Formularios: React Hook Form 7.71.1
+- Validación: Zod 3.24.1
+- Estilos: Tailwind CSS 4.2.0
+- Iconografía: Lucide React 0.574.0
+- Visualización de Datos: Recharts 3.7.0
+
+### Backend
+
+- Lenguaje: TypeScript 5.3.3
+- Entorno de Ejecución: Node.js (>=18.0.0)
+- Framework: Express 4.18.3
+- ORM: Prisma 5.10.0
+- Seguridad: JWT (jsonwebtoken 9.0.2), BcryptJS 2.4.3, Helmet 7.1.0
+- Documentación: Swagger UI Express 5.0.0
+
+### Base de Datos
+
+- Motor: PostgreSQL (Alojado en Supabase)
+
+### Herramientas y Otros
+
+- Gestión de Monorepositorio: npm Workspaces
+- Notificaciones por Email: Resend / Nodemailer
+- Calidad de Código: ESLint, Prettier
+- Programación de Tareas: Node-cron 3.0.3
+
+## Prerrequisitos
+
+- Node.js versión 18.0.0 o superior.
+- npm (gestor de paquetes de Node).
+- Instancia de PostgreSQL (local o remota como Supabase).
+- Cuenta en Resend (opcional para el servicio de correos).
+
+## Instalación y Configuración
+
+### 1. Clonar el repositorio
+
+```bash
+git clone [url-del-repo]
+cd psybook
+```
+
+### 2. Variables de entorno
+
+El proyecto utiliza un sistema de monorepositorio con archivos .env tanto en el backend como en el frontend.
+
+**Backend (apps/backend/.env)**
+
+| Variable       | Descripción                        | Ejemplo                             | Requerida |
+| :------------- | :---------------------------------- | :---------------------------------- | :-------- |
+| DATABASE_URL   | URL de conexión a PostgreSQL       | postgresql://user:pass@host:5432/db | Sí       |
+| DIRECT_URL     | URL directa para migraciones Prisma | postgresql://user:pass@host:5432/db | Sí       |
+| JWT_SECRET     | Secreto para firma de tokens JWT    | cadena_secreta_pro                  | Sí       |
+| PORT           | Puerto de ejecución del servidor   | 4001                                | Sí       |
+| MAIL_USER      | Usuario para servicio SMTP          | usuario@gmail.com                   | No        |
+| MAIL_PASS      | Contraseña o App Key SMTP          | password_app                        | No        |
+| FRONTEND_URL   | URL del origen frontend para CORS   | http://localhost:5173               | Sí       |
+| RESEND_API_KEY | API Key para servicio Resend        | re_123456789                        | No        |
+
+**Frontend (apps/frontend/.env)**
+
+| Variable     | Descripción               | Ejemplo                   | Requerida |
+| :----------- | :------------------------- | :------------------------ | :-------- |
+| VITE_API_URL | URL base de la API backend | http://localhost:4001/api | Sí       |
+
+### 3. Instalación de dependencias
+
+Desde la raíz del proyecto, ejecutar:
+
+```bash
+npm install
+```
+
+### 4. Configuración de base de datos
+
+Instalar y generar el cliente de Prisma:
+
+```bash
+cd apps/backend
+npm run prisma:generate
+npm run prisma:migrate
+```
+
+### 5. Configuración adicional
+
+Si se requiere sembrar datos iniciales:
+
+```bash
+npx ts-node seed-service.ts
+```
+
+## Ejecución del Proyecto
+
+### Entorno de desarrollo
+
+Para levantar tanto el backend como el frontend simultáneamente desde la raíz:
+
+```bash
+npm run dev
+```
+
+O de forma individual:
+
+```bash
+# Solo backend
+npm run dev:backend
+
+# Solo frontend
+cd apps/frontend && npm run dev
+```
+
+### Comandos disponibles
+
+Desde la raíz del proyecto:
+
+| Comando               | Descripción                                   |
+| :-------------------- | :--------------------------------------------- |
+| npm run dev           | Inicia backend y frontend en modo desarrollo   |
+| npm run build         | Compila el backend y frontend para producción |
+| npm run build:backend | Compila únicamente el backend                 |
+| npm run start         | Inicia el servidor backend compilado           |
+
+## Estructura del Proyecto
+
+```
+psybook/
+├── apps/
+│   ├── backend/          # Servidor Node.js + Express
+│   │   ├── prisma/       # Esquemas y migraciones de base de datos
+│   │   ├── src/
+│   │   │   ├── config/   # Configuraciones globales
+│   │   │   ├── modules/  # Lógica de negocio organizada por dominios
+│   │   │   └── server.ts # Punto de entrada
+│   │   └── uploads/      # Almacenamiento local de archivos
+│   └── frontend/         # SPA con React + Vite
+│       ├── src/
+│       │   ├── api/      # Clientes de servicios API
+│       │   ├── components/# Componentes UI reutilizables
+│       │   └── pages/    # Vistas principales del sistema
+├── packages/
+│   └── shared-types/     # Tipos TypeScript comunes para monorepo
+└── package.json          # Configuración de npm workspaces
+```
+
+## Arquitectura y Decisiones Técnicas
+
+- Estructura Monolítica Modular: El backend está organizado en módulos por dominio (auth, patients, appointments), lo que facilita la mantenibilidad y escalabilidad interna.
+- Monorepositorio: Uso de npm Workspaces para gestionar frontend y backend en un único repositorio, compartiendo tipos y configuraciones.
+- Validación de Esquemas: Uso intensivo de Zod tanto en frontend como en backend para garantizar la integridad de los datos.
+- Seguridad: Implementación de Middlewares para autenticación JWT y control de acceso basado en roles (RBAC).
+
+## Endpoints de la API
+
+| Método | Ruta               | Descripción                        | Autenticación    |
+| :------ | :----------------- | :---------------------------------- | :---------------- |
+| POST    | /api/auth/login    | Inicio de sesión de usuario        | No                |
+| POST    | /api/auth/register | Registro de nuevo profesional       | No                |
+| GET     | /api/patients      | Listado de todos los pacientes      | Sí               |
+| POST    | /api/appointments  | Creación de nueva cita             | Sí/No (Público) |
+| GET     | /api/services      | Listado de servicios ofrecidos      | Sí               |
+| GET     | /api/dashboard     | Estadísticas generales del sistema | Sí               |
+
+## Flujo de Trabajo Git
+
+- Ramas: main para producción, develop para integración de características.
+- Commits: Se recomienda seguir la convención de Conventional Commits (feat:, fix:, chore:, docs:).
+
+## Despliegue a Producción
+
+### Checklist previo al despliegue
+
+- Configurar variables de entorno de producción en el host.
+- Asegurar que la base de datos PostgreSQL sea accesible.
+- Ejecutar compilación de assets (build).
+- Validar conectividad con el servicio de correo.
+
+### Proceso de despliegue
+
+1. Configurar aplicación en plataforma (ej. Vercel para frontend, Render/VPS para backend).
+2. Definir variables de entorno en la plataforma.
+3. El frontend utiliza el comando `npm run build` para generar el directorio `dist`.
+4. El backend utiliza `npm run build` para generar archivos JS en `dist` y se inicia con `npm run start`.
+5. Ejecutar migraciones en la base de datos de producción mediante `npx prisma migrate deploy`.
+
+## Roadmap
+
+### Corto plazo
+
+- Implementación de recordatorios automáticos por WhatsApp.
+- Mejora en la visualización de calendarios semanales.
+
+### Mediano plazo
+
+- Módulo de facturación y cobro online.
+- Aplicación móvil dedicada para pacientes.
+
+### Largo plazo
+
+- Integración con plataformas de videollamada para telepsicología.
+- Análisis predictivo de evolución del paciente mediante IA.
+
+## Solución de Problemas Comunes
+
+| Error                 | Causa                            | Solución                      |
+| :-------------------- | :------------------------------- | :----------------------------- |
+| Error de conexión DB | URL de base de datos incorrecta  | Verificar DATABASE_URL en .env |
+| JWT Expired           | El token del usuario ha caducado | Re-autenticarse en el sistema  |
+| Prisma Client Error   | Esquema no sincronizado          | Ejecutar npx prisma generate   |
+
+## Licencia
+
+Este proyecto está bajo la Licencia MIT.
+
+## Autores
+
+Desarrollado por el equipo de Sharcorp.

@@ -54,7 +54,6 @@ export default function WeeklyView({ appointments }: WeeklyViewProps) {
 
   return (
     <div className="bg-white rounded-4xl shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
-      {/* Header */}
       <div className="flex items-center justify-between p-6 border-b border-slate-50 bg-slate-50/30">
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-3">
@@ -98,10 +97,8 @@ export default function WeeklyView({ appointments }: WeeklyViewProps) {
         </div>
       </div>
 
-      {/* Weekly Grid */}
       <div className="overflow-x-auto">
         <div className="min-w-[800px]">
-          {/* Days Header */}
           <div className="grid grid-cols-8 border-b border-slate-200 bg-slate-50/50">
             <div className="p-3 text-xs font-semibold text-slate-500 uppercase tracking-wider border-r border-slate-200">
               Hora
@@ -132,7 +129,6 @@ export default function WeeklyView({ appointments }: WeeklyViewProps) {
             })}
           </div>
 
-          {/* Hours Grid */}
           <div className="divide-y divide-slate-100">
             {HOURS.map((hour) => (
               <div

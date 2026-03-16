@@ -4,7 +4,7 @@ export interface UserProfile {
   id: string;
   name: string;
   email: string;
-  role: "ADMIN" | "DOCTOR" | "PATIENT";
+  role: "ADMIN" | "PSYCHOLOGIST";
   createdAt: string;
 }
 

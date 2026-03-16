@@ -10,6 +10,8 @@ import {
 } from "../notifications/notification.service";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { logger } from "../../utils/logger";
+import { AppointmentStatus } from "@prisma/client";
 
 const appointmentInclude = {
   patient: { select: { id: true, name: true, email: true, phone: true } },
@@ -17,17 +19,14 @@ const appointmentInclude = {
   service: { select: { id: true, name: true, duration: true, price: true } },
 };
 
-// Helper function to convert YYYY-MM-DD string to Date at midnight UTC
 function parseDateString(dateString: string): Date {
   const [year, month, day] = dateString.split("-").map(Number);
-  // Create a date at midnight UTC for the given year, month, day
   return new Date(Date.UTC(year, month - 1, day));
 }
 
 export async function createAppointment(data: CreateAppointmentInput) {
   const appointmentDate = parseDateString(data.date);
 
-  // Check for scheduling conflict
   const conflict = await prisma.appointment.findFirst({
     where: {
       userId: data.userId,
@@ -46,7 +45,6 @@ export async function createAppointment(data: CreateAppointmentInput) {
     include: appointmentInclude,
   });
 
-  // Send confirmation email (non-blocking in background)
   sendAppointmentConfirmation({
     patientEmail: appointment.patient.email,
     patientName: appointment.patient.name,
@@ -57,7 +55,7 @@ export async function createAppointment(data: CreateAppointmentInput) {
     doctorName: appointment.user.name,
     notes: appointment.notes || undefined,
   }).catch((error) => {
-    console.error("Failed to send appointment confirmation email:", error);
+    logger.error("Failed to send appointment confirmation email:", error);
   });
 
   return appointment;
@@ -66,13 +64,13 @@ export async function createAppointment(data: CreateAppointmentInput) {
 export async function getAllAppointments(filters?: {
   userId?: string;
   date?: string;
-  status?: string;
+  status?: AppointmentStatus;
 }) {
   return prisma.appointment.findMany({
     where: {
       ...(filters?.userId && { userId: filters.userId }),
       ...(filters?.date && { date: parseDateString(filters.date) }),
-      ...(filters?.status && { status: filters.status as any }),
+      ...(filters?.status && { status: filters.status }),
     },
     include: appointmentInclude,
     orderBy: [{ date: "asc" }, { startTime: "asc" }],
@@ -112,14 +110,12 @@ export async function deleteAppointment(id: string) {
   });
   if (!appointment) throw createError("Appointment not found", 404);
 
-  // Mark as cancelled instead of deleting
   const updated = await prisma.appointment.update({
     where: { id },
     data: { status: "CANCELLED" },
     include: appointmentInclude,
   });
 
-  // Send cancellation email (non-blocking in background)
   sendAppointmentCancellation({
     patientEmail: updated.patient.email,
     patientName: updated.patient.name,
@@ -129,7 +125,7 @@ export async function deleteAppointment(id: string) {
     endTime: updated.endTime,
     doctorName: updated.user.name,
   }).catch((error) => {
-    console.error("Failed to send appointment cancellation email:", error);
+    logger.error("Failed to send appointment cancellation email:", error);
   });
 
   return updated;

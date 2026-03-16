@@ -2,22 +2,17 @@ import prisma from "../../config/db";
 import { sendAppointmentReminder } from "./notification.service";
 import { format, addDays } from "date-fns";
 import { es } from "date-fns/locale";
+import { logger } from "../../utils/logger";
 
-/**
- * Check for appointments that are exactly 24 hours away and send reminder emails
- */
 export async function sendAppointmentReminders() {
   try {
-    // Get tomorrow's date at 00:00 UTC
     const tomorrow = new Date();
     tomorrow.setUTCDate(tomorrow.getUTCDate() + 1);
     tomorrow.setUTCHours(0, 0, 0, 0);
 
-    // Get the day after tomorrow at 00:00 UTC
     const dayAfter = new Date(tomorrow);
     dayAfter.setUTCDate(dayAfter.getUTCDate() + 1);
 
-    // Find all appointments scheduled for tomorrow
     const appointments = await prisma.appointment.findMany({
       where: {
         date: {
@@ -25,7 +20,6 @@ export async function sendAppointmentReminders() {
           lt: dayAfter,
         },
         status: { not: "CANCELLED" },
-        // Only send reminders if we haven't already sent one
         reminderSent: false,
       },
       include: {
@@ -35,8 +29,8 @@ export async function sendAppointmentReminders() {
       },
     });
 
-    console.log(
-      `📧 Found ${appointments.length} appointments for tomorrow. Sending reminders...`
+    logger.info(
+      `📧 Found ${appointments.length} appointments for tomorrow. Sending reminders...`,
     );
 
     for (const apt of appointments) {
@@ -52,7 +46,6 @@ export async function sendAppointmentReminders() {
           doctorName: apt.user.name,
         });
 
-        // Mark reminder as sent only if email was successful
         if (success) {
           await prisma.appointment.update({
             where: { id: apt.id },
@@ -60,14 +53,14 @@ export async function sendAppointmentReminders() {
           });
         }
       } catch (error) {
-        console.error(`Failed to send reminder for appointment ${apt.id}:`, error);
+        logger.error(`Failed to send reminder for appointment ${apt.id}:`, error);
       }
     }
 
-    console.log(
-      `✅ Appointment reminder job completed at ${new Date().toISOString()}`
+    logger.info(
+      `✅ Appointment reminder job completed at ${new Date().toISOString()}`,
     );
   } catch (error) {
-    console.error("❌ Error in appointment reminder job:", error);
+    logger.error("❌ Error in appointment reminder job:", error);
   }
 }

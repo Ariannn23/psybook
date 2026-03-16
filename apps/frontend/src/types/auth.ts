@@ -1,13 +1,11 @@
-export interface ApiResponse<T> {
-  success: boolean;
-  data: T;
-}
+import type { ApiResponse, Role } from "@psybook/shared";
+export type { ApiResponse, Role };
 
 export interface User {
   id: string;
   email: string;
   name: string;
-  role: "ADMIN" | "DOCTOR" | "PATIENT";
+  role: Role;
 }
 
 export interface LoginResponse {

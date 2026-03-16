@@ -46,7 +46,9 @@ export default function LoginPage() {
         "/auth/login",
         data,
       );
-      login(response.data.data.token, response.data.data.user);
+      const payload = response.data.data;
+      if (!payload) throw new Error("Respuesta inválida del servidor");
+      login(payload.token, payload.user);
       navigate("/dashboard");
     } catch (err: unknown) {
       if (axios.isAxiosError(err)) {
@@ -63,9 +65,7 @@ export default function LoginPage() {
     <>
       {isPageLoading && <PageLoader />}
       <div className="min-h-screen flex bg-white animate-fade-in">
-        {/* Left Column: Visual & Branding (Hidden on mobile) */}
         <div className="hidden lg:flex lg:w-1/2 relative bg-slate-900 overflow-hidden animate-in fade-in duration-1000 ease-out">
-          {/* Animated Background Elements */}
           <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-emerald-500/20 rounded-full blur-[120px] -mr-64 -mt-64 animate-pulse"></div>
           <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-teal-500/10 rounded-full blur-[100px] -ml-32 -mb-32"></div>
 
@@ -108,7 +108,6 @@ export default function LoginPage() {
           </div>
         </div>
 
-        {/* Right Column: Login Form */}
         <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-slate-50/50">
           <div className="w-full max-w-md space-y-8 animate-slide-in">
             <div className="text-center lg:text-left">

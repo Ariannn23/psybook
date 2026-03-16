@@ -22,8 +22,15 @@ import {
 import axios from "axios";
 import { cn } from "@/lib/utils";
 import PageLoader from "@/components/ui/PageLoader";
+import { logger } from "@/utils/logger";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
+const API_URL = (() => {
+  const url = import.meta.env.VITE_API_URL;
+  if (import.meta.env.PROD && !url) {
+    throw new Error("VITE_API_URL es requerida en producción");
+  }
+  return url || "http://localhost:4000/api";
+})();
 
 type Step = "service" | "doctor" | "dateTime" | "patient" | "success";
 
@@ -76,7 +83,7 @@ export default function PublicBookingPage() {
           setDoctors(doctorsRes.data.data);
         }
       } catch (error) {
-        console.error("Error fetching initial data:", error);
+        logger.error("Error fetching initial data:", error);
       } finally {
         setTimeout(() => setIsInitialLoading(false), 800);
       }
@@ -105,7 +112,7 @@ export default function PublicBookingPage() {
         setAvailableSlots(response.data.data);
       }
     } catch (error) {
-      console.error("Error fetching slots:", error);
+      logger.error("Error fetching slots:", error);
     } finally {
       setIsLoadingSlots(false);
     }
@@ -126,7 +133,7 @@ export default function PublicBookingPage() {
         setStep("success");
       }
     } catch (error) {
-      console.error("Error booking appointment:", error);
+      logger.error("Error booking appointment:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -136,7 +143,6 @@ export default function PublicBookingPage() {
 
   return (
     <div className="min-h-screen bg-slate-50/50 flex flex-col font-sans text-slate-900">
-      {/* Header */}
       <header className="bg-white/80 backdrop-blur-md border-b border-slate-100 py-4 px-6 sticky top-0 z-50">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-6">
@@ -169,7 +175,6 @@ export default function PublicBookingPage() {
 
       <main className="flex-1 py-12 px-6">
         <div className="max-w-3xl mx-auto">
-          {/* Stepper Progress */}
           {step !== "success" && (
             <div className="mb-10">
               <div className="flex items-center justify-between relative px-2">
@@ -230,7 +235,6 @@ export default function PublicBookingPage() {
             </div>
           )}
 
-          {/* Step Content */}
           <div className="bg-white rounded-[2.5rem] shadow-2xl shadow-slate-200/50 border border-slate-100 overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700">
             {step === "service" && (
               <div className="p-8 md:p-12">
@@ -380,7 +384,6 @@ export default function PublicBookingPage() {
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-10">
-                  {/* Mini Calendar (Simplified for now with day list) */}
                   <div>
                     <label className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 block">
                       1. Selecciona el Día
@@ -416,7 +419,6 @@ export default function PublicBookingPage() {
                     </div>
                   </div>
 
-                  {/* Time Slots */}
                   <div>
                     <label className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 block">
                       2. Selecciona la Hora

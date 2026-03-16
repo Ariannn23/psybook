@@ -5,6 +5,7 @@ import { Plus, Search, Trash2, Eye, Pencil } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import PageLoader from "@/components/ui/PageLoader";
+import { logger } from "@/utils/logger";
 
 export default function PatientsPage() {
   const [patients, setPatients] = useState<Patient[]>([]);
@@ -16,7 +17,7 @@ export default function PatientsPage() {
       const data = await getPatients();
       setPatients(data);
     } catch (error) {
-      console.error("Failed to fetch patients", error);
+      logger.error("Failed to fetch patients", error);
     } finally {
       setIsLoading(false);
     }
@@ -32,7 +33,7 @@ export default function PatientsPage() {
       await deletePatient(id);
       setPatients(patients.filter((p) => p.id !== id));
     } catch (error) {
-      console.error("Failed to delete patient", error);
+      logger.error("Failed to delete patient", error);
       alert("Failed to delete patient");
     }
   };

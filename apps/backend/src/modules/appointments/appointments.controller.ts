@@ -4,6 +4,14 @@ import {
   updateAppointmentSchema,
 } from "./appointments.schema";
 import * as appointmentsService from "./appointments.service";
+import { createError } from "../../middlewares/error.middleware";
+import { AppointmentStatus } from "@prisma/client";
+
+function requireUserId(req: Request): string {
+  const userId = req.user?.id;
+  if (!userId) throw createError("No autorizado", 401);
+  return userId;
+}
 
 export async function create(
   req: Request,
@@ -11,9 +19,7 @@ export async function create(
   next: NextFunction,
 ): Promise<void> {
   try {
-    // Inject userId from the authenticated user
-    // @ts-ignore
-    const userId = req.user.id;
+    const userId = requireUserId(req);
     const bodyWithUser = { ...req.body, userId };
 
     const data = createAppointmentSchema.parse(bodyWithUser);
@@ -30,13 +36,19 @@ export async function getAll(
   next: NextFunction,
 ): Promise<void> {
   try {
-    // @ts-ignore
-    const authenticatedUserId = req.user.id;
-    const { date, status } = req.query;
+    const authenticatedUserId = requireUserId(req);
+    const { date, status } = req.query as { date?: unknown; status?: unknown };
+    const dateFilter = typeof date === "string" ? date : undefined;
+    const statusFilter =
+      typeof status === "string" &&
+      (Object.values(AppointmentStatus) as string[]).includes(status)
+        ? (status as AppointmentStatus)
+        : undefined;
+
     const appointments = await appointmentsService.getAllAppointments({
       userId: authenticatedUserId, // Force use of authenticated userId
-      date: date as string,
-      status: status as string,
+      date: dateFilter,
+      status: statusFilter,
     });
     res.json({ success: true, data: appointments });
   } catch (error) {
@@ -50,13 +62,11 @@ export async function getById(
   next: NextFunction,
 ): Promise<void> {
   try {
-    // @ts-ignore
-    const authenticatedUserId = req.user.id;
+    const authenticatedUserId = requireUserId(req);
     const appointment = await appointmentsService.getAppointmentById(
       req.params.id,
     );
 
-    // Verify ownership
     if (appointment.userId !== authenticatedUserId) {
       res.status(404).json({ success: false, message: "Cita no encontrada" });
       return;
@@ -74,10 +84,8 @@ export async function update(
   next: NextFunction,
 ): Promise<void> {
   try {
-    // @ts-ignore
-    const authenticatedUserId = req.user.id;
+    const authenticatedUserId = requireUserId(req);
 
-    // First verify ownership
     const appointment = await appointmentsService.getAppointmentById(
       req.params.id,
     );
@@ -103,10 +111,8 @@ export async function remove(
   next: NextFunction,
 ): Promise<void> {
   try {
-    // @ts-ignore
-    const authenticatedUserId = req.user.id;
+    const authenticatedUserId = requireUserId(req);
 
-    // First verify ownership
     const appointment = await appointmentsService.getAppointmentById(
       req.params.id,
     );

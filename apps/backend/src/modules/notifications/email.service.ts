@@ -1,24 +1,8 @@
 import { Resend } from "resend";
 import { env } from "../../config/env";
+import { logger } from "../../utils/logger";
 
-// Initialize Resend
 const resend = env.RESEND_API_KEY ? new Resend(env.RESEND_API_KEY) : null;
-
-// Log email configuration on startup
-console.log("📧 Email Configuration:", {
-  provider: resend ? "Resend API" : "NONE (Fallback to log)",
-  resendKey: env.RESEND_API_KEY
-    ? `${env.RESEND_API_KEY.substring(0, 10)}***`
-    : "NOT SET",
-});
-
-if (!resend) {
-  console.warn(
-    "⚠️ RESEND_API_KEY not set. Emails will only be logged to console.",
-  );
-} else {
-  console.log("✅ Email service ready - Resend API initialized");
-}
 
 interface SendEmailOptions {
   to: string;
@@ -32,18 +16,22 @@ export async function sendEmail({
   html,
 }: SendEmailOptions): Promise<boolean> {
   try {
-    // Check if email is configured
+    const isProd = process.env.NODE_ENV === "production";
     if (!resend) {
-      console.log(`📝 [EMAIL SIMULATION] To: ${to} | Subject: ${subject}`);
-      console.warn("ℹ️ Configure RESEND_API_KEY in .env to enable real emails");
-      return true; // Return true as simulation succeeded
+      if (!isProd) {
+        logger.info(` [EMAIL SIMULATION] To: ${to} | Subject: ${subject}`);
+        logger.warn(
+          "ℹ Configure RESEND_API_KEY in .env to enable real emails",
+        );
+      }
+      return true;
     }
 
-    console.log(
-      `📤 Sending email via Resend to ${to} with subject: "${subject}"`,
-    );
+    if (!isProd) {
+      logger.info(` Sending email via Resend to ${to} with subject: "${subject}"`);
+    }
 
-    const { data, error } = await resend.emails.send({
+    const { data: _data, error } = await resend.emails.send({
       from: "PsyBook <onboarding@resend.dev>",
       to,
       subject,
@@ -51,19 +39,13 @@ export async function sendEmail({
     });
 
     if (error) {
-      console.error(
-        "❌ Resend API Error Details:",
-        JSON.stringify(error, null, 2),
-      );
+      logger.error("Resend API Error:", error.message);
       return false;
     }
 
-    console.log(`✅ Email sent successfully to ${to}`);
-    console.log(`   Email ID: ${data?.id}`);
-
     return true;
   } catch (error) {
-    console.error("❌ Failed to send email via Resend:", error);
+    logger.error("Failed to send email via Resend:", error);
     return false;
   }
 }

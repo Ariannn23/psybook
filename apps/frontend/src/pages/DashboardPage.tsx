@@ -22,13 +22,13 @@ import StatusChart from "@/components/dashboard/StatusChart";
 import { getDashboardStats } from "@/api/dashboard";
 import type { DashboardStats as DashboardStatsType } from "@/api/dashboard";
 import PageLoader from "@/components/ui/PageLoader";
+import { logger } from "@/utils/logger";
 
 export default function DashboardPage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const { user, logout } = useAuth();
   const location = useLocation();
 
-  // Close sidebar when route changes on mobile
   useEffect(() => {
     setIsSidebarOpen(false);
   }, [location]);
@@ -51,7 +51,6 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col md:flex-row relative">
-      {/* Mobile Top Bar */}
       <header className="md:hidden sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-2">
           <img src="/icono_psybook.png" alt="Logo" className="w-8 h-8" />
@@ -71,7 +70,6 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      {/* Sidebar Backdrop (Mobile) */}
       {isSidebarOpen && (
         <div
           className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 md:hidden animate-fade-in"
@@ -79,7 +77,6 @@ export default function DashboardPage() {
         />
       )}
 
-      {/* Sidebar */}
       <aside
         className={cn(
           "fixed md:sticky top-0 left-0 bottom-0 z-50 w-72 md:w-64 bg-white border-r border-slate-200/60 flex-shrink-0 shadow-2xl md:shadow-lg transition-transform duration-300 md:translate-x-0 flex flex-col",
@@ -173,9 +170,7 @@ export default function DashboardPage() {
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className="flex-1 overflow-x-hidden min-h-[calc(100vh-64px)] md:min-h-screen">
-        {/* Page Content */}
         {location.pathname === "/dashboard" ? (
           <div className="p-4 md:p-8 space-y-8 max-w-7xl mx-auto animate-fade-in">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -217,7 +212,7 @@ function DashboardContent() {
         const data = await getDashboardStats();
         setStats(data);
       } catch (error) {
-        console.error("Failed to fetch dashboard stats", error);
+        logger.error("Failed to fetch dashboard stats", error);
       } finally {
         setIsLoading(false);
       }

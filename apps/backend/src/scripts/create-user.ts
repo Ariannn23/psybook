@@ -1,11 +1,19 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import { logger } from "../utils/logger";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  const email = "doctor@example.com";
-  const password = "password123";
+  const email = process.env.SEED_USER_EMAIL || process.argv[2];
+  const password = process.env.SEED_USER_PASSWORD || process.argv[3];
+
+  if (!email || !password) {
+    throw new Error(
+      "Missing credentials. Provide argv: create-user <email> <password> or env: SEED_USER_EMAIL/SEED_USER_PASSWORD",
+    );
+  }
+
   const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
@@ -16,12 +24,12 @@ async function main() {
         email,
         password: hashedPassword,
         name: "Dr. Strange",
-        role: "PSYCHOLOGIST", // Changed from PSYCHOLOGIST to whatever enum is defined
+        role: "PSYCHOLOGIST",
       },
     });
-    console.log("User created:", user);
+    logger.info("User created", { id: user.id, email: user.email, role: user.role });
   } catch (e) {
-    console.error(e);
+    logger.error(e);
   } finally {
     await prisma.$disconnect();
   }

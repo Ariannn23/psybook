@@ -1,7 +1,3 @@
-// Prisma Schema - PsyBook SaaS
-// MVP: Single tenant (1 consultorio)
-// Prepared for multi-tenant: organizationId fields commented for future Sprint 3
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,18 +7,6 @@ datasource db {
   url       = env("DATABASE_URL")
 }
 
-// FUTURE: Uncomment for multi-tenant support (SaaS Phase)
-// model Organization {
-//   id           String        @id @default(uuid())
-//   name         String
-//   slug         String        @unique
-//   createdAt    DateTime      @default(now())
-//   users        User[]
-//   patients     Patient[]
-//   services     Service[]
-//   appointments Appointment[]
-// }
-
 model User {
   id        String   @id @default(uuid())
   name      String
@@ -31,9 +15,6 @@ model User {
   role      Role
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  // FUTURE: organizationId String
-  // FUTURE: organization   Organization @relation(fields: [organizationId], references: [id])
 
   schedules      Schedule[]
   appointments   Appointment[]
@@ -46,7 +27,7 @@ model User {
 
 model Patient {
   id        String   @id @default(uuid())
-  userId    String   @default("") // Temporarily default for existing records, will update with migration
+  userId    String   @default("")
   name      String
   dni       String   @default("")
   email     String
@@ -66,13 +47,11 @@ model Service {
   id          String   @id @default(uuid())
   name        String
   description String?
-  duration    Int      // in minutes
+  duration    Int
   price       Float
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  // FUTURE: organizationId String
 
   appointments Appointment[]
 
@@ -82,9 +61,9 @@ model Service {
 model Schedule {
   id        String   @id @default(uuid())
   userId    String
-  day       Int      // 0=Sunday, 1=Monday ... 6=Saturday
-  startTime String   // "09:00"
-  endTime   String   // "18:00"
+  day       Int
+  startTime String
+  endTime   String
   createdAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -95,19 +74,17 @@ model Schedule {
 model Appointment {
   id        String            @id @default(uuid())
   patientId String
-  userId    String            // Psychologist
+  userId    String
   serviceId String
   date      DateTime
-  startTime String            // "10:00"
-  endTime   String            // "11:00"
+  startTime String
+  endTime   String
   status    AppointmentStatus @default(PENDING)
   reason    String?
-  notes     String?           // Internal psychologist notes
+  notes     String?
   reminderSent Boolean         @default(false)
   createdAt DateTime          @default(now())
   updatedAt DateTime          @updatedAt
-
-  // FUTURE: organizationId String
 
   patient Patient @relation(fields: [patientId], references: [id], onDelete: Cascade)
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -120,7 +97,7 @@ model MedicalRecord {
   id        String   @id @default(uuid())
   patientId String
   userId    String
-  content   String   // @db.Text not needed for postgres unless specific, but String is fine. Prisma defaults to text.
+  content   String
   attachments String[] @default([])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -133,9 +110,9 @@ model MedicalRecord {
 
 model Notification {
   id        String   @id @default(uuid())
-  userId    String   // Recipient
+  userId    String
   message   String
-  type      String   @default("info") // info, success, warning, error
+  type      String   @default("info")
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
 

@@ -17,16 +17,15 @@ export interface Appointment {
   patientId: string;
   userId: string;
   serviceId: string;
-  date: string; // ISO Date
-  startTime: string; // "10:00"
-  endTime: string; // "11:00"
+  date: string;
+  startTime: string;
+  endTime: string;
   status: AppointmentStatus;
   reason?: string;
   notes?: string;
   createdAt: string;
   updatedAt: string;
 
-  // Relations (might be included in some responses)
   patient?: Patient;
   user?: User;
   service?: Service;
@@ -34,10 +33,10 @@ export interface Appointment {
 
 export interface CreateAppointmentInput {
   patientId: string;
-  date: string; // YYYY-MM-DD
-  startTime: string; // HH:MM
-  endTime: string; // HH:MM
-  serviceId?: string; // Optional for now if not strictly required by frontend yet
+  date: string;
+  startTime: string;
+  endTime: string;
+  serviceId?: string;
   reason?: string;
   notes?: string;
 }

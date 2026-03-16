@@ -25,6 +25,8 @@ import WeeklyScheduleView from "@/components/schedules/WeeklyScheduleView";
 import PageLoader from "@/components/ui/PageLoader";
 import DaySelect from "@/components/ui/DaySelect";
 import { Controller } from "react-hook-form";
+import { logger } from "@/utils/logger";
+import axios from "axios";
 
 const DAYS = [
   "Domingo",
@@ -91,7 +93,7 @@ export default function AvailabilityPage() {
       const data = await getSchedules();
       setSchedules(data);
     } catch (err) {
-      console.error("Failed to fetch schedules", err);
+      logger.error("Failed to fetch schedules", err);
     } finally {
       setIsLoading(false);
     }
@@ -126,12 +128,17 @@ export default function AvailabilityPage() {
         startTime: "09:00",
         endTime: "17:00",
       });
-    } catch (err: any) {
-      console.error("Failed to save schedule", err);
-      setError(
-        err.response?.data?.message ||
-          "Error al guardar horario. Verifica solapamientos.",
-      );
+    } catch (err: unknown) {
+      logger.error("Failed to save schedule", err);
+      const msg = (() => {
+        if (!axios.isAxiosError(err)) return undefined;
+        const data = err.response?.data;
+        if (!data || typeof data !== "object") return undefined;
+        if (!("message" in data)) return undefined;
+        const maybeMessage = (data as { message?: unknown }).message;
+        return typeof maybeMessage === "string" ? maybeMessage : undefined;
+      })();
+      setError(msg ?? "Error al guardar horario. Verifica solapamientos.");
     } finally {
       setIsSubmitting(false);
     }
@@ -147,7 +154,7 @@ export default function AvailabilityPage() {
         reset();
       }
     } catch (err) {
-      console.error("Failed to delete schedule", err);
+      logger.error("Failed to delete schedule", err);
     }
   };
 
@@ -186,18 +193,16 @@ export default function AvailabilityPage() {
     }
 
     try {
-      // Delete all schedules for this day sequentially
       for (const schedule of daySchedules) {
         await deleteSchedule(schedule.id);
       }
       setSchedules((prev) => prev.filter((s) => s.day !== dayIndex));
     } catch (err) {
-      console.error("Failed to clear day schedules", err);
+      logger.error("Failed to clear day schedules", err);
       setError("Error al marcar el día como libre.");
     }
   };
 
-  // Group schedules by day for display
   const schedulesByDay = Array.from({ length: 7 }, (_, i) =>
     schedules.filter((s) => s.day === i),
   );
@@ -244,7 +249,6 @@ export default function AvailabilityPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Form Section */}
         <div className="md:col-span-1">
           <div
             className={cn(
@@ -358,7 +362,6 @@ export default function AvailabilityPage() {
           </div>
         </div>
 
-        {/* List Section */}
         <div className="lg:col-span-3">
           {isLoading ? (
             <PageLoader fullPage={false} message="Cargando disponibilidad..." />

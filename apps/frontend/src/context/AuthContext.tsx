@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import api from "@/api/axios";
 import type { User, ApiResponse } from "@/types/auth";
+import { logger } from "@/utils/logger";
 
 interface AuthContextType {
   user: User | null;
@@ -38,19 +39,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const storedToken = localStorage.getItem("token");
       if (storedToken) {
         try {
-          // Verify token and get user data
-          // Assuming backend has /auth/me endpoint. If not, we might need to rely on stored user or just token validity.
-          // For now, let's assume we decode token or fetch profile.
-          // Since we didn't implement /auth/me yet in backend (Wait, did we?), let's check.
-          // Step 12 checklist says "Documentar todos los endpoints".
-          // If /auth/me is missing, we should implement it or store user in localStorage on login.
-          // Let's fetch from /auth/me if possible.
-
-          // Actually, let's try to fetch user. If it fails, logout.
           const { data } = await api.get<ApiResponse<User>>("/auth/me");
-          setUser(data.data);
+          setUser(data.data ?? null);
         } catch (error) {
-          console.error("Session expired", error);
+          logger.warn("Session expired", error);
           logout();
         }
       }

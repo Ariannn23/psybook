@@ -48,7 +48,7 @@ export default function RegisterPage() {
     setIsLoading(true);
     setError("");
     try {
-      await api.post<ApiResponse<any>>("/auth/register", {
+      await api.post<ApiResponse<unknown>>("/auth/register", {
         name: data.name,
         email: data.email,
         password: data.password,
@@ -70,9 +70,7 @@ export default function RegisterPage() {
     <>
       {isPageLoading && <PageLoader />}
       <div className="min-h-screen flex bg-white animate-fade-in">
-        {/* Left Column: Visual & Branding (Hidden on mobile) */}
         <div className="hidden lg:flex lg:w-1/2 relative bg-slate-900 overflow-hidden animate-in fade-in duration-1000 ease-out">
-          {/* Animated Background Elements */}
           <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-emerald-500/20 rounded-full blur-[120px] -ml-64 -mt-64 animate-pulse"></div>
           <div className="absolute bottom-0 right-0 w-[400px] h-[400px] bg-teal-500/10 rounded-full blur-[100px] -mr-32 -mb-32"></div>
 
@@ -116,7 +114,6 @@ export default function RegisterPage() {
           </div>
         </div>
 
-        {/* Right Column: Register Form */}
         <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-slate-50/50">
           <div className="w-full max-w-md space-y-8 animate-slide-in">
             <div className="text-center lg:text-left">

@@ -24,7 +24,6 @@ export async function getDashboardStats(userId: string) {
     appointmentsByStatus,
     appointmentsByDay,
   ] = await prisma.$transaction([
-    // Total patients seen by this doctor
     prisma.patient.count({
       where: {
         appointments: {
@@ -32,7 +31,6 @@ export async function getDashboardStats(userId: string) {
         },
       },
     }),
-    // Appointments this month for this doctor
     prisma.appointment.count({
       where: {
         userId,
@@ -42,7 +40,6 @@ export async function getDashboardStats(userId: string) {
         },
       },
     }),
-    // Appointments last month (for comparison) for this doctor
     prisma.appointment.count({
       where: {
         userId,
@@ -52,14 +49,12 @@ export async function getDashboardStats(userId: string) {
         },
       },
     }),
-    // Completed appointments (total) for this doctor
     prisma.appointment.count({
       where: {
         userId,
         status: "COMPLETED",
       },
     }),
-    // Pending appointments (future) for this doctor
     prisma.appointment.count({
       where: {
         userId,
@@ -67,7 +62,6 @@ export async function getDashboardStats(userId: string) {
         date: { gte: now },
       },
     }),
-    // Next 5 appointments for this doctor
     prisma.appointment.findMany({
       where: {
         userId,
@@ -87,7 +81,6 @@ export async function getDashboardStats(userId: string) {
         },
       },
     }),
-    // Appointments by status (for pie chart) for this doctor
     prisma.appointment.groupBy({
       by: ["status"],
       where: {
@@ -102,7 +95,6 @@ export async function getDashboardStats(userId: string) {
         status: "asc",
       },
     }),
-    // Appointments by day of week (for bar chart) for this doctor
     prisma.$queryRaw<Array<{ day: number; count: bigint }>>`
       SELECT EXTRACT(DOW FROM "date")::int as day, COUNT(*)::bigint as count
       FROM appointments
@@ -114,7 +106,6 @@ export async function getDashboardStats(userId: string) {
     `,
   ]);
 
-  // Calculate trend
   const trend =
     lastMonthAppointments > 0
       ? (
@@ -124,24 +115,17 @@ export async function getDashboardStats(userId: string) {
         ).toFixed(1)
       : "0";
 
-  // Format appointments by status
   const statusData = appointmentsByStatus.map((item) => ({
     status: item.status,
-    // In Prisma groupBy, _count is usually an object like { _all: number }
-    count:
-      typeof item._count === "number"
-        ? item._count
-        : (item as any)._count?._all || (item as any)._count?.status || 0,
+    count: (item as { _count: { _all: number } })._count._all,
   }));
 
-  // Format appointments by day
   const dayData = (appointmentsByDay || []).map((item) => ({
     day: Number(item.day),
     count: Number(item.count),
   }));
 
-  // Fill missing days with 0
-  const weekDays = [0, 1, 2, 3, 4, 5, 6]; // Sunday = 0
+  const weekDays = [0, 1, 2, 3, 4, 5, 6];
   const completeDayData = weekDays.map((day) => {
     const existing = dayData.find((d) => d.day === day);
     return {
