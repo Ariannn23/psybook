@@ -9,7 +9,7 @@ export const getMedicalRecordsByPatient = async (
   patientId: string,
 ): Promise<MedicalRecord[]> => {
   const response = await api.get(`/medical-records/${patientId}`);
-  return response.data;
+  return response.data.data;
 };
 
 export const createMedicalRecord = async (

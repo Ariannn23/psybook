@@ -1,90 +1,92 @@
-import { Request, Response, NextFunction } from "express";
-import prisma from "../../config/db";
-import { createError } from "../../middlewares/error.middleware";
+import { Request, Response } from "express";
+import { prisma as db } from "../../config/db";
 
-function requireUserId(req: Request): string {
-  const userId = req.user?.id;
-  if (!userId) throw createError("No autorizado", 401);
-  return userId;
-}
-
-export async function getAll(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
+export const getAll = async (req: Request, res: Response) => {
   try {
-    const userId = requireUserId(req);
-    const notifications = await prisma.notification.findMany({
+    const userId = (req as any).userId;
+
+    if (!userId) {
+      return res.status(401).json({ error: "No autorizado" });
+    }
+
+    const notifications = await db.notification.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
       take: 20,
     });
-    res.json({ success: true, data: notifications });
+
+    return res.json(notifications);
   } catch (error) {
-    next(error);
+    console.error("Error fetching notifications:", error);
+    return res.status(500).json({ error: "Error al obtener notificaciones" });
   }
-}
+};
 
-export async function markAsRead(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
+export const markAsRead = async (req: Request, res: Response) => {
   try {
-    const userId = requireUserId(req);
     const { id } = req.params;
+    const userId = (req as any).userId;
 
-    const notification = await prisma.notification.findUnique({ where: { id } });
+    const notification = await db.notification.findUnique({
+      where: { id },
+    });
+
     if (!notification || notification.userId !== userId) {
-      throw createError("Notificación no encontrada", 404);
+      return res.status(404).json({ error: "Notificación no encontrada" });
     }
 
-    const updated = await prisma.notification.update({
+    const updated = await db.notification.update({
       where: { id },
       data: { isRead: true },
     });
 
-    res.json({ success: true, data: updated });
+    return res.json(updated);
   } catch (error) {
-    next(error);
+    console.error("Error updating notification:", error);
+    return res.status(500).json({ error: "Error al actualizar notificación" });
   }
-}
+};
 
-export async function markAllAsRead(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
+export const markAllAsRead = async (req: Request, res: Response) => {
   try {
-    const userId = requireUserId(req);
-    await prisma.notification.updateMany({
+    const userId = (req as any).userId;
+
+    if (!userId) {
+      return res.status(401).json({ error: "No autorizado" });
+    }
+
+    await db.notification.updateMany({
       where: { userId, isRead: false },
       data: { isRead: true },
     });
-    res.json({ success: true });
+
+    return res.json({ message: "Todas las notificaciones marcadas como leídas" });
   } catch (error) {
-    next(error);
+    console.error("Error updating notifications:", error);
+    return res.status(500).json({ error: "Error al actualizar notificaciones" });
   }
-}
+};
 
-export async function remove(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
+export const remove = async (req: Request, res: Response) => {
   try {
-    const userId = requireUserId(req);
     const { id } = req.params;
+    const userId = (req as any).userId;
 
-    const notification = await prisma.notification.findUnique({ where: { id } });
+    const notification = await db.notification.findUnique({
+      where: { id },
+    });
+
     if (!notification || notification.userId !== userId) {
-      throw createError("Notificación no encontrada", 404);
+      return res.status(404).json({ error: "Notificación no encontrada" });
     }
 
-    await prisma.notification.delete({ where: { id } });
-    res.json({ success: true });
+    await db.notification.delete({
+      where: { id },
+    });
+
+    return res.json({ message: "Notificación eliminada" });
   } catch (error) {
-    next(error);
+    console.error("Error deleting notification:", error);
+    return res.status(500).json({ error: "Error al eliminar notificación" });
   }
-}
+};
